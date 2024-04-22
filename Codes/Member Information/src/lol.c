@@ -8,8 +8,8 @@
 #include <termios.h>
 #include <unistd.h>
 
-/* reads from keypress, doesn't echo */
-int getch()
+// reads from keypress, doesn't echo 
+int getch()			//Defining function of getch(), only relevant for linux users
 {
     struct termios oldattr, newattr;
     int ch;
@@ -22,9 +22,6 @@ int getch()
     return ch;
 }
 #endif
-
-
-
 #pragma warning (disable:4996)
 
 typedef struct {
@@ -39,14 +36,14 @@ int stringInput(const char* prompt, char* buffer, int n); 	// Used as a one-line
 int charInput(const char* prompt, char* c);					// Used as a one-liner for prompting and receiving input for char
 void flush(FILE* stream); 									// Flushes overflowing data
 
-void main() {
+void main() {												// Main Menu. Branches off into Login, Sign Up, Password Recovery, Close Program.
 	bool exit = false;
 	int memberOption;
 	Member current_member;
 
-	printf("Welcome Member!");
+	printf("Welcome Member!\n\n");
 	while (!exit) {
-		printf("\nChoose your Desired Mode.\n");
+		printf("Choose your Desired Mode.\n");
 		printf("1. Login\n");
 		printf("2. Sign Up\n");
 		printf("3. I forgor my password :skull:\n");
@@ -57,26 +54,30 @@ void main() {
 
 		switch (memberOption) {
 		case 1:
-			if (login(&current_member) == true){
+			if (login(&current_member) == true){		// Login function. If login is a success (receives value 'true'), run everything below.
 				printf("\n\nWelcome, %s!\n", current_member.username);
-				printf("\n\n%s\n", current_member.password);
-				printf("\n\n%s\n", current_member.email);
-				printf("\n\n%c\n", current_member.gender);
-				printf("\n\n%s\n", current_member.contact_No);
+				printf("\n%s\n", current_member.password);
+				printf("\n%s\n", current_member.email);
+				printf("\n%c\n", current_member.gender);
+				printf("\n%s\n", current_member.contact_No);
+				getch();
+				exit = true;
 			}
+
 			break;
 		case 2:
-			signUp();
+			signUp();									// Sign Up function. Runs login() if success (not implemented yet)
 			break;
 		case 3:
-			passwordRec();
+			passwordRec();								// Password Recovery function. Runs login() if success (not implemented yet)
 			break;
 		case 4:
 			exit=true;
 			break;
 		default:
-			printf("\nInvalid option! Fuck off lmao\n");
+			printf("\nInvalid option! Press any key to Retry...\n");
 			getch();
+			system("clear");
 		}
 	}
 }
@@ -84,7 +85,7 @@ void main() {
 bool login(Member* place_to_put_member) {
 	char loginName[30], loginPassword[50];
 	FILE* fMem;
-	Member memberBuffer;
+	Member memberBuffer;			// Temporary spot to store the structer read from .bin file. Used to compare with user input.
 
 	fMem = fopen("memberlist.bin", "rb");
 	if (fMem == NULL) {
@@ -92,23 +93,31 @@ bool login(Member* place_to_put_member) {
 		exit(1);
 	}
 
-	stringInput("Enter your username > ", loginName, 30);
-	stringInput("Enter your password > ", loginPassword, 50);
+	stringInput("Enter your username > ", loginName, 30);				// Getting username INPUT
+	stringInput("Enter your password > ", loginPassword, 50);			// Getting password INPUT
 
-	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {
+	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {				// Looping to read each structure variable saved into memberlist.bin.
 
-		if (strcmp(memberBuffer.username, loginName) == 0) {
+		if (strcmp(memberBuffer.username, loginName) == 0) {			// If the program finds a match on the username....
 
-			if (strcmp(memberBuffer.password, loginPassword) == 0) {
-				printf("Login Successful!\n");
-				*place_to_put_member = memberBuffer;
+			if (strcmp(memberBuffer.password, loginPassword) == 0) {	// ...and If it finds that the password also matches...
+				printf("Login Successful!\n");							
+				*place_to_put_member = memberBuffer;					// it will pass the values of the temporary storage (user input) to the the struct that stores the member currently logged in.
 				fclose(fMem);
-				return true;
+				return true;											// and it will return the boolean value 'true'.
 			}
 			else {
-				printf("Wrong Password!\n");
+				printf("Wrong Password!");								// If the password doesn't match, restart.
+				printf(" Press any key to try again...\n");
+				getch();
+				system("clear");
+				break;
 			}
 		}
+	}
+	if (strcmp(memberBuffer.username,loginName) !=0) {
+		printf("Username Not Found! Press any key to return to Main Menu...\n");
+		getch();
 	}
 	fclose(fMem);
 	return false;
@@ -131,6 +140,7 @@ void signUp() {
 	while (charInput("Enter your gender (M,F) > ", new_member.gender) !=0) {
 		printf("Dumbass do it again.\n\n");
 		getch();
+		system("clear");
 	}
 	stringInput("Enter your contact number > ", new_member.contact_No, 12);
 
@@ -138,13 +148,53 @@ void signUp() {
 	printf("\n\nYou have successfully registered an account! Press any button to proceed to Login Page...");
 	fclose(fMem);
 	getch();
-
-	
 }
 
-
 void passwordRec() {
-	printf("Password Rec");
+	int recOption;
+	char loginName[30] = {};
+	bool back = false;
+	Member memberBuffer;
+
+	FILE* fMem;
+	fMem = fopen("memberlist.bin", "rb");
+
+	stringInput("\nEnter your username > ", loginName, 30);
+	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {	
+		if (strcmp(memberBuffer.username, loginName) == 0) {
+			while (!back) {
+				printf("\nChoose Password Recovery Method.\n");
+				printf("1. Email Verification\n");
+				printf("2. Phone SMS\n");
+				printf("3. Back to Main Menu\n\n");
+				printf(">>>>> ");
+				scanf("%d", &recOption);
+				flush(stdin);
+
+				switch (recOption) {
+				case 1:
+
+					break;
+				case 2:
+					break;
+				case 3:
+					back = true;
+					break;
+				default:
+					printf("???wtf, try the fuck again.");
+					getch();
+					system("clear");
+					break;
+				}
+			}
+			break;
+		} // else {Do nothing.}
+	}
+	if (back == false) {
+		printf("Username Not Found! Press any key to return to Main Menu...");
+		getch();
+	}
+	
 }
 
 
@@ -184,7 +234,6 @@ int charInput(const char* prompt, char* c) {
 	flush(stdin);
     return 0;
 }
-
 
 void flush(FILE* stream) {
 	int c;
