@@ -2,67 +2,106 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__) || defined(__WINDOWS__)
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+
+/* reads from keypress, doesn't echo */
+int getch()
+{
+    struct termios oldattr, newattr;
+    int ch;
+    tcgetattr( STDIN_FILENO, &oldattr );
+    newattr = oldattr;
+    newattr.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+    ch = getchar();
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+    return ch;
+}
+#endif
+
+
+
 #pragma warning (disable:4996)
 
 typedef struct {
-	char username[50], password[50], email[254];
+	char memberID[6], username[30], password[50], email[254], gender[2], contact_No[12];
 }Member;
 
 
-bool login(Member* place_to_put_member);
-void registr();
-void passwordRec();
-int input(const char* prompt, char* buffer, int n);
-void flush(FILE* stream);
+bool login(Member* place_to_put_member); 					// Login Function
+void signUp(); 												// Register Function
+void passwordRec(); 										// Password Recovery Function
+int stringInput(const char* prompt, char* buffer, int n); 	// Used as a one-liner for prompting and receiving input for string
+int charInput(const char* prompt, char* c);					// Used as a one-liner for prompting and receiving input for char
+void flush(FILE* stream); 									// Flushes overflowing data
 
 void main() {
+	bool exit = false;
 	int memberOption;
 	Member current_member;
 
-	printf("Welcome Member!\nTo Proceed to Login Page, Enter 1\nTo Register an account, Enter 2.\nIf you forgot your password, Enter 3.\n\n>>>");
-	scanf("%d", &memberOption);
-	flush(stdin);
-	switch (memberOption) {
-	case 1:
-		if (login(&current_member) == true){
-			printf("\n\nWelcome, %s!\n", current_member.username);
+	printf("Welcome Member!");
+	while (!exit) {
+		printf("\nChoose your Desired Mode.\n");
+		printf("1. Login\n");
+		printf("2. Sign Up\n");
+		printf("3. I forgor my password :skull:\n");
+		printf("4. Exit\n\n");
+		printf(">>>>> ");
+		scanf("%d", &memberOption);
+		flush(stdin);
+
+		switch (memberOption) {
+		case 1:
+			if (login(&current_member) == true){
+				printf("\n\nWelcome, %s!\n", current_member.username);
+				printf("\n\n%s\n", current_member.password);
+				printf("\n\n%s\n", current_member.email);
+				printf("\n\n%c\n", current_member.gender);
+				printf("\n\n%s\n", current_member.contact_No);
+			}
+			break;
+		case 2:
+			signUp();
+			break;
+		case 3:
+			passwordRec();
+			break;
+		case 4:
+			exit=true;
+			break;
+		default:
+			printf("\nInvalid option! Fuck off lmao\n");
+			getch();
 		}
-		break;
-	case 2:
-		registr();
-		break;
-	case 3:
-		passwordRec();
-		break;
-	default:
-		printf("Invalid option!");
 	}
 }
 
 bool login(Member* place_to_put_member) {
-	char loginName[50], loginPassword[50];
-	char username_buffer[50], password_buffer[50], email_buffer[254];
-
+	char loginName[30], loginPassword[50];
 	FILE* fMem;
+	Member memberBuffer;
 
-	fMem = fopen("memberlist.txt", "r");
+	fMem = fopen("memberlist.bin", "rb");
 	if (fMem == NULL) {
 		printf("Error at opening File!");
 		exit(1);
 	}
 
-	input("Enter your username > ", loginName, 50);
-	input("Enter your password > ", loginPassword, 50);
-	
-	while (fscanf(fMem, "%[^:]:%[^:]:%s\n", username_buffer, password_buffer, email_buffer) == 3) {
+	stringInput("Enter your username > ", loginName, 30);
+	stringInput("Enter your password > ", loginPassword, 50);
 
-		if (strcmp(username_buffer, loginName) == 0) {
+	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {
 
-			if (strcmp(password_buffer, loginPassword) == 0) {
+		if (strcmp(memberBuffer.username, loginName) == 0) {
+
+			if (strcmp(memberBuffer.password, loginPassword) == 0) {
 				printf("Login Successful!\n");
-				strcpy(place_to_put_member->username, username_buffer);
-				strcpy(place_to_put_member->password, password_buffer);
-				strcpy(place_to_put_member->email, email_buffer);
+				*place_to_put_member = memberBuffer;
 				fclose(fMem);
 				return true;
 			}
@@ -76,36 +115,40 @@ bool login(Member* place_to_put_member) {
 }
 
 
-void registr() {
-	char username[50], password[50], email[50];
+void signUp() {
+	Member new_member;
+
 	FILE* fMem;
-	fMem = fopen("memberlist.txt", "a");
+	fMem = fopen("memberlist.bin", "ab");
 	if (fMem == NULL) {
 		printf("Error at opening File!");
 		exit(1);
 	}
 
-	printf("Enter your username > ");
-	rewind(stdin);
-	scanf("%s", &username);
+	stringInput("Enter your username > ", new_member.username, 30);
+	stringInput("Enter your password > ", new_member.password, 50);
+	stringInput("Enter your email > ", new_member.email, 254);
+	while (charInput("Enter your gender (M,F) > ", new_member.gender) !=0) {
+		printf("Dumbass do it again.\n\n");
+		getch();
+	}
+	stringInput("Enter your contact number > ", new_member.contact_No, 12);
 
-	printf("Enter your password > ");
-	rewind(stdin);
-	scanf("%s", &password);
+	fwrite(&new_member, sizeof(new_member), 1, fMem);
+	printf("\n\nYou have successfully registered an account! Press any button to proceed to Login Page...");
+	fclose(fMem);
+	getch();
 
-	printf("Enter your email > ");
-	rewind(stdin);
-	scanf("%s", &email);
-
-	fprintf(fMem, "%s\,%s\,%s\n", username, password, email);
-
+	
 }
+
+
 void passwordRec() {
 	printf("Password Rec");
 }
 
 
-int input(const char* prompt, char* buffer, int n) {
+int stringInput(const char* prompt, char* buffer, int n) {
 	printf("%s", prompt);
 
 	if (fgets(buffer, n, stdin) == NULL)
@@ -121,12 +164,27 @@ int input(const char* prompt, char* buffer, int n) {
 	buffer[strcspn(buffer, "\n")] = 0;
 
 	if (buffer[0] == 0)
-		// man just pressed enter
+		// Fucking Idiot pressed "ENTER" who tf does that
 		return 1;
 
-	// all OK!
+	// i love you
 	return 0;
 }
+
+int charInput(const char* prompt, char* c) {
+    printf("%s", prompt);
+    
+    int ch = getc(stdin);
+
+    if (ch == '\n')
+        // Fucking Idiot pressed "ENTER" who tf does that
+        return 1;
+
+    *c = (char) ch;
+	flush(stdin);
+    return 0;
+}
+
 
 void flush(FILE* stream) {
 	int c;
