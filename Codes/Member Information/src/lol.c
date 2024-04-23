@@ -41,6 +41,13 @@ void main() {												// Main Menu. Branches off into Login, Sign Up, Passwor
 	int memberOption;
 	Member current_member;
 
+
+
+
+
+
+
+
 	printf("Welcome Member!\n\n");
 	while (!exit) {
 		printf("Choose your Desired Mode.\n");
@@ -58,7 +65,7 @@ void main() {												// Main Menu. Branches off into Login, Sign Up, Passwor
 				printf("\n\nWelcome, %s!\n", current_member.username);
 				printf("\n%s\n", current_member.password);
 				printf("\n%s\n", current_member.email);
-				printf("\n%c\n", current_member.gender);
+				printf("\n%s\n", current_member.gender);
 				printf("\n%s\n", current_member.contact_No);
 				getch();
 				exit = true;
@@ -137,7 +144,7 @@ void signUp() {
 	stringInput("Enter your username > ", new_member.username, 30);
 	stringInput("Enter your password > ", new_member.password, 50);
 	stringInput("Enter your email > ", new_member.email, 254);
-	while (charInput("Enter your gender (M,F) > ", new_member.gender) !=0) {
+	while (stringInput("Enter your gender (M,F) > ", new_member.gender,2) !=0) {
 		printf("Dumbass do it again.\n\n");
 		getch();
 		system("clear");
@@ -193,6 +200,7 @@ void passwordRec() {
 	if (back == false) {
 		printf("Username Not Found! Press any key to return to Main Menu...");
 		getch();
+		system("clear");
 	}
 	
 }
