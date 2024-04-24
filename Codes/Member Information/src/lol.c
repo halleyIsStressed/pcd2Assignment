@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <stdbool.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__) || defined(__WINDOWS__)
 #include <conio.h>
 #else
@@ -30,8 +33,11 @@ typedef struct {
 
 
 bool login(Member* place_to_put_member); 					// Login Function
+bool passwordRec(Member* place_to_put_member); 				// Password Recovery Function
+const char* domainToIP(const char*);
+int connectToServer(const char*);
 void signUp(); 												// Register Function
-void passwordRec(); 										// Password Recovery Function
+int randomNumGen();
 int stringInput(const char* prompt, char* buffer, int n); 	// Used as a one-liner for prompting and receiving input for string
 int charInput(const char* prompt, char* c);					// Used as a one-liner for prompting and receiving input for char
 void flush(FILE* stream); 									// Flushes overflowing data
@@ -40,13 +46,6 @@ void main() {												// Main Menu. Branches off into Login, Sign Up, Passwor
 	bool exit = false;
 	int memberOption;
 	Member current_member;
-
-
-
-
-
-
-
 
 	printf("Welcome Member!\n\n");
 	while (!exit) {
@@ -76,7 +75,15 @@ void main() {												// Main Menu. Branches off into Login, Sign Up, Passwor
 			signUp();									// Sign Up function. Runs login() if success (not implemented yet)
 			break;
 		case 3:
-			passwordRec();								// Password Recovery function. Runs login() if success (not implemented yet)
+			if (passwordRec(&current_member) == true) {	// Password Recovery function. Runs login() if success (not implemented yet)
+				printf("\n\nWelcome, %s!\n", current_member.username);
+				printf("\n%s\n", current_member.password);
+				printf("\n%s\n", current_member.email);
+				printf("\n%s\n", current_member.gender);
+				printf("\n%s\n", current_member.contact_No);
+				getch();
+				exit = true;
+			};	
 			break;
 		case 4:
 			exit=true;
@@ -141,24 +148,25 @@ void signUp() {
 		exit(1);
 	}
 
-	stringInput("Enter your username > ", new_member.username, 30);
-	stringInput("Enter your password > ", new_member.password, 50);
-	stringInput("Enter your email > ", new_member.email, 254);
-	while (stringInput("Enter your gender (M,F) > ", new_member.gender,2) !=0) {
+	stringInput("Enter your username\t\t> ", new_member.username, 30);
+	stringInput("Enter your password\t\t> ", new_member.password, 50);
+	stringInput("Enter your email\t\t> ", new_member.email, 254);
+	while (stringInput("Enter your gender (M,F)\t\t> ", new_member.gender,2) !=0) {
 		printf("Dumbass do it again.\n\n");
 		getch();
 		system("clear");
 	}
-	stringInput("Enter your contact number > ", new_member.contact_No, 12);
+	stringInput("Enter your contact number\t> +60", new_member.contact_No, 12);
 
 	fwrite(&new_member, sizeof(new_member), 1, fMem);
-	printf("\n\nYou have successfully registered an account! Press any button to proceed to Login Page...");
+	printf("\n\nYou have successfully registered an account! Press any button to return to Main Menu...\n");
 	fclose(fMem);
 	getch();
+	system("clear");
 }
 
-void passwordRec() {
-	int recOption;
+bool passwordRec(Member* place_to_put_member) {
+	int recOption, code = 0, codeAns;
 	char loginName[30] = {};
 	bool back = false;
 	Member memberBuffer;
@@ -170,6 +178,11 @@ void passwordRec() {
 	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {	
 		if (strcmp(memberBuffer.username, loginName) == 0) {
 			while (!back) {
+
+				printf("%s", memberBuffer);
+				*place_to_put_member = memberBuffer;
+				code = randomNumGen();
+				printf("%d", code);
 				printf("\nChoose Password Recovery Method.\n");
 				printf("1. Email Verification\n");
 				printf("2. Phone SMS\n");
@@ -180,12 +193,19 @@ void passwordRec() {
 
 				switch (recOption) {
 				case 1:
-
+					printf("\n\nA Code is sent to your Email! Please enter it here > ");
+					scanf("%d", &codeAns);
+					if (codeAns == code) {
+						*place_to_put_member = memberBuffer;
+						fclose(fMem);
+						return true;	
+					}
 					break;
 				case 2:
 					break;
 				case 3:
 					back = true;
+					system("clear");
 					break;
 				default:
 					printf("???wtf, try the fuck again.");
@@ -205,6 +225,12 @@ void passwordRec() {
 	
 }
 
+int randomNumGen() {
+	int n, upper = 9999, lower=1000;
+	srand(time(NULL));
+	n = (rand() % (upper-lower+1)) + lower;
+	return n;
+}
 
 int stringInput(const char* prompt, char* buffer, int n) {
 	printf("%s", prompt);
@@ -247,3 +273,26 @@ void flush(FILE* stream) {
 	int c;
 	while ((c = getc(stream)) != '\n' && c != EOF);
 }
+
+int connectToServer(const char* server_address) {
+	int socket_fd = socket(AF_INET,SOCK_STREAM,IPPROTO_IP);
+	struct sockaddr_in addr;
+	memset(&addr,0,sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(25);
+	if (inet_pton(AF_INET,domainToTP(server_address),addr.sin_addr) == 1) {
+		connect(socket_fd, &addr, sizeof(addr));
+	}
+	return socket_fd;
+}
+
+const char* domainToIP(const char* target_domain) {
+	const char* target_ip;
+	struct in_addr *host_address;
+	struct hostent *raw_list = gethostbyname(target_domain);
+	for(int i = 0 ; raw_list->h_addr_list[i]!=0 ; i++) {
+		host_address = raw_list->h_addr_list[i];
+		target_ip = inet_ntoa(host_address);
+	}
+	return target_ip;
+} 
