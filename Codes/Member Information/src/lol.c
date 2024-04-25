@@ -39,7 +39,7 @@ typedef struct {
 }Member;
 
 bool login(Member* place_to_put_member); 					// Login Function
-bool memberMenu(Member);
+bool memberMenu(Member*);
 bool passwordRec(Member* place_to_put_member); 				// Password Recovery Function
 void signUp(); 												// Register Function
 int randomNumGen();
@@ -85,7 +85,7 @@ void main() {												// Main Menu. Branches off into Login, Sign Up, Passwor
 		case 4:
 			printf("\n\nSee you!");
 			getch();
-			return -1;
+			return;
 			break;
 		default:
 			printf("\nInvalid option! Press any key to Retry...\n");
@@ -180,7 +180,7 @@ void signUp() {
 
 bool passwordRec(Member* place_to_put_member) {
 	int recOption, code = 0, codeAns;
-	char loginName[USERNAME_SIZE] = {NULL};
+	char loginName[USERNAME_SIZE];
 	bool back = false;
 	Member memberBuffer;
 
@@ -229,7 +229,7 @@ bool memberMenu(Member* current_member) {
 		printf("1. View Profile Details\n");
 		printf("2. Display Train Schedule List\n");			// Combine: zw part
 		printf("3. Book a Train Ticket\n");					// Combine: zy part
-		printf("4. Lost and Found\n");
+		printf("4. Lost and Found\n");						// Write with: yj part
 		printf("5. Return to Main Menu\n\n");
 		printf(">>>>> ");
 		scanf("%d", &memberOption);
@@ -257,8 +257,6 @@ bool memberMenu(Member* current_member) {
 					exit(1);
 				}
 				int modifyOption;
-				char newIc[IC_SIZE], newUser[USERNAME_SIZE], newPassword[PASSWORD_SIZE],
-					newEmail[EMAIL_SIZE], newGender[GENDER_SIZE], newContact[CONTACT_SIZE];
 				printf("Choose Field to Edit.\n");
 				printf("1. Username\n");
 				printf("2. Password\n");
@@ -271,37 +269,40 @@ bool memberMenu(Member* current_member) {
 				flush(stdin);
 				switch (modifyOption) {
 				case 1:
-					stringInput("\nEnter new username > ", newUser[USERNAME_SIZE], USERNAME_SIZE);
+					stringInput("\nEnter new username > ", current_member->username, USERNAME_SIZE);
 					while (!feof(fMod)) {
-						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
-							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE) - sizeof(Member), SEEK_CUR);
-							}
+						fread(&memberBuffer, sizeof(Member), 1, fMod);
+						if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
+							fseek(fMod, IC_SIZE - sizeof(Member), SEEK_CUR);
+							fwrite(current_member->username, USERNAME_SIZE, 1, fMod);
+							break;
 						}
 					}
 					break;
 				case 2:
-					stringInput("\nEnter new password > ", newPassword[PASSWORD_SIZE], PASSWORD_SIZE);
+					stringInput("\nEnter new password > ", current_member->password, PASSWORD_SIZE);
 					while (!feof(fMod)) {
-						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
-							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE) - sizeof(Member), SEEK_CUR);
-							}
+						fread(&memberBuffer, sizeof(Member), 1, fMod);
+						if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
+							fseek(fMod, (IC_SIZE+USERNAME_SIZE) - sizeof(Member), SEEK_CUR);
+							fwrite(current_member->password, PASSWORD_SIZE, 1, fMod);
+							break;
 						}
 					}
 					break;
 				case 3:
-					stringInput("\nEnter new Email > ", newEmail[EMAIL_SIZE], EMAIL_SIZE);
+					stringInput("\nEnter new Email > ", current_member->email, EMAIL_SIZE);
 					while (!feof(fMod)) {
-						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
-							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE) - sizeof(Member), SEEK_CUR);
-							}
+						fread(&memberBuffer, sizeof(Member), 1, fMod);
+						if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
+							fseek(fMod, (IC_SIZE+USERNAME_SIZE+PASSWORD_SIZE) - sizeof(Member), SEEK_CUR);
+							fwrite(current_member->email, EMAIL_SIZE, 1, fMod);
+							break;
 						}
 					}
 					break;
 				case 4:
-					while (!(stringInput("Enter new gender (M,F)\t\t> ", newGender, GENDER_SIZE) == 0 && (newGender[0] == 'M' || newGender[0] == 'F'))) {
+					while (!(stringInput("Enter new gender (M,F)\t\t> ", current_member->gender, GENDER_SIZE) == 0 && (current_member->gender[0] == 'M' || current_member->gender[0] == 'F'))) {
 						printf("Dumbass do it again.\n\n");
 						getch();
 						system("cls");
@@ -309,17 +310,17 @@ bool memberMenu(Member* current_member) {
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
 					break;
 				case 5:
-					stringInput("\nEnter new phone number > +60", newUser[USERNAME_SIZE], USERNAME_SIZE);
+					stringInput("\nEnter new phone number > +60", current_member->contact_No, CONTACT_SIZE);
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
@@ -328,11 +329,12 @@ bool memberMenu(Member* current_member) {
 					system("cls");
 					break;
 				default:
-					printf("\n\Invalid Input! Press any key to try again...\n");
+					printf("\nInvalid Input! Press any key to try again...\n");
 					getch();
 					system("cls");
 					break;
 				}
+				fclose(fMod);
 				break;
 			case 2:
 				stringInput("Warning: Deleting Account will result in total wipe of your data.\nIf you wish to proceed, type 'confirm'\n>>>>> ", confirm, 8);
@@ -371,20 +373,20 @@ bool memberMenu(Member* current_member) {
 				system("cls");
 				break;
 			default:
-				printf("\n\Invalid Input! Press any key to try again...\n");
+				printf("\nInvalid Input! Press any key to try again...\n");
 				getch();
 				system("cls");
 				break;
 			}
 		break;
 		case 2:
-			printf("\n\Schedule List!\n");					// Combine: zw part
+			printf("\nSchedule List!\n");					// Combine: zw part
 		break;
 		case 3:
-			printf("\n\Booking Module!\n");					// Combine: zy part
+			printf("\nBooking Module!\n");					// Combine: zy part
 		break;
 		case 4:
-			printf("\n\Lost and Found!\n");					// Write into: yj part
+			printf("\nLost and Found!\n");					// Write into: yj part
 		break;
 		case 5:
 			backToMain = true;
