@@ -39,7 +39,7 @@ typedef struct {
 }Member;
 
 bool login(Member* place_to_put_member); 					// Login Function
-bool memberMenu(Member);
+bool memberMenu(Member*);
 bool passwordRec(Member* place_to_put_member); 				// Password Recovery Function
 void signUp(); 												// Register Function
 int randomNumGen();
@@ -271,31 +271,32 @@ bool memberMenu(Member* current_member) {
 				flush(stdin);
 				switch (modifyOption) {
 				case 1:
-					stringInput("\nEnter new username > ", newUser[USERNAME_SIZE], USERNAME_SIZE);
+					stringInput("\nEnter new username > ", newUser, USERNAME_SIZE);
 					while (!feof(fMod)) {
-						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
-							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE) - sizeof(Member), SEEK_CUR);
-							}
+						fread(&memberBuffer, sizeof(Member), 1, fMod);
+						if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
+							fseek(fMod, IC_SIZE - sizeof(Member), SEEK_CUR);
+							fwrite(newUser, sizeof(USERNAME_SIZE), 1, fMod);
+							break;
 						}
 					}
 					break;
 				case 2:
-					stringInput("\nEnter new password > ", newPassword[PASSWORD_SIZE], PASSWORD_SIZE);
+					stringInput("\nEnter new password > ", newPassword, PASSWORD_SIZE);
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
 					break;
 				case 3:
-					stringInput("\nEnter new Email > ", newEmail[EMAIL_SIZE], EMAIL_SIZE);
+					stringInput("\nEnter new Email > ", newEmail, EMAIL_SIZE);
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
@@ -309,17 +310,17 @@ bool memberMenu(Member* current_member) {
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
 					break;
 				case 5:
-					stringInput("\nEnter new phone number > +60", newUser[USERNAME_SIZE], USERNAME_SIZE);
+					stringInput("\nEnter new phone number > +60", newContact, CONTACT_SIZE);
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
-								fseek(fMod, sizeof(IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
