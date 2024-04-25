@@ -1,0 +1,4 @@
+1001 Sibu          1 10:00 Kota Kinabalu        15:00 50.00  100 Stand By
+1002 Sibu          2 13:00 Klang                17:00 100.00 200 Operating
+1003 Sungai Petani 4 10:00 Serdang              18:00 100.00  50 Stand By
+1004 Sibu          3 08:00 Sandakan             17:00 70.00  50 Stand By
