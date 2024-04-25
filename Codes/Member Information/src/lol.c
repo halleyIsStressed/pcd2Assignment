@@ -40,6 +40,7 @@ typedef struct {
 
 bool login(Member* place_to_put_member); 					// Login Function
 bool memberMenu(Member*);
+bool memberMenu(Member*);
 bool passwordRec(Member* place_to_put_member); 				// Password Recovery Function
 void signUp(); 												// Register Function
 int randomNumGen();
@@ -311,6 +312,7 @@ bool memberMenu(Member* current_member) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
 								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member), SEEK_CUR);
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
 					}
@@ -320,6 +322,7 @@ bool memberMenu(Member* current_member) {
 					while (!feof(fMod)) {
 						while (fread(&memberBuffer, sizeof(Member), 1, fMod)) {
 							if (strcmp(memberBuffer.ic, current_member->ic) == 0) {
+								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member), SEEK_CUR);
 								fseek(fMod, (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member), SEEK_CUR);
 							}
 						}
