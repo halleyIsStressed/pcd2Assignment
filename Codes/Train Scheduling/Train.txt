@@ -1,4 +1,3 @@
-1001 Sibu          1 10:00 Kota Kinabalu        15:00 50.00  100 Stand By
-1002 Sibu          2 13:00 Klang                17:00 100.00 200 Operating
-1003 Sungai Petani 4 10:00 Serdang              18:00 100.00  50 Stand By
-1004 Sibu          3 08:00 Sandakan             17:00 70.00  50 Stand By
+1001#Jinjang#1#15:00#Serdang#20:00#20.000000#100#Stand By
+1002#Seremban#2#20:00#Kota Bharu#00:00#40.000000#200#Operating
+1003#Setapak#3#10:00#Cheras#13:00#20.000000#50#Fixing
