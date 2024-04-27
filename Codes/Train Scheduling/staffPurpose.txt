@@ -1,2 +1,5 @@
 1001#Train Clean#Fix train
 1002#Train Dirty#Train track need to be fix
+1003#Train Slow#Train need to clean
+1004#Train Late#Fix train seats
+1005#Train too fast#Clean Train tracks
