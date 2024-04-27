@@ -1,10 +1,10 @@
 1001#Sibu#1#15:00#Perak#02:00#100.000000#100#Operating
 1002#Perak#2#10:00#Kuantan#16:00#50.000000#200#Stand By
-1003#Kuantan#3#19:00#Kelantan#23:00#30.000000#150#Stand By
+1003#Kuantan#3#19:00#Kelantan#23:00#30.000000#150#Operating
 1004#Kota Kinabalu#4#07:00#Sandakan#10:00#70.000000#50#Fixing
-1005#Penang#5#17:00#Sungai Petani#22:00#60.000000#150#Fixing
+1005#Penang#5#17:00#Sungai Petani#22:00#60.000000#150#Operating
 1006#Kuala Lumpur#6#00:00#Johor#07:00#100.000000#200#Stand By
 1007#Seremban#7#08:00#Melaka#10:00#20.000000#150#Operating
 1008#Terengganu#8#15:00#Kuantan#19:00#50.000000#300#Fixing
-1009#Alor Setar#9#12:00#Cheras#23:00#90.000000#250#Stand By
+1009#Alor Setar#9#12:00#Serdang#23:00#90.000000#250#Stand By
 1010#Johor Bahru#10#14:00#Melaka#18:00#40.000000#100#Operating
