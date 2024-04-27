@@ -59,7 +59,7 @@ int readTicketFile(TICKET ticket[]) {
 	int count = 0;
 	FILE* readTF;
 	TICKET temp;
-	readTF = fopen("ticket.txt", "r");
+	readTF = fopen("Ticket.txt", "r");
 	if (readTF == NULL) {
 		printf("Can't open the file ticket.txt!\n\n");
 		exit(-1);
