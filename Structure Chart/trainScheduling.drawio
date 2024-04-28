@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-04-28T10:28:30.060Z" agent="Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36" etag="PTzxHJfp8WTRKAHerLzY" scale="1" border="0" version="24.3.1" type="github">
+<mxfile host="app.diagrams.net" modified="2024-04-28T10:48:28.665Z" agent="Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36" etag="6xXDe9j-BmrIey2l08oL" scale="1" border="0" version="24.3.1" type="github">
   <diagram name="Page-1" id="wsvX1V8xmCE5Pih7Cehq">
-    <mxGraphModel dx="724" dy="1202" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="815" dy="1353" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -127,16 +127,17 @@
         <mxCell id="oxZfwqx1W0hyZ-UEQZH9-1" value="Menu" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1040" y="170" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="JS4GMvEFGhpzKjeozdGD-16" value="Display train ID and its own feedback and maintenance&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="900" y="585" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="JS4GMvEFGhpzKjeozdGD-17" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="JS4GMvEFGhpzKjeozdGD-16" edge="1">
+        <mxCell id="JS4GMvEFGhpzKjeozdGD-17" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="960" y="580" as="sourcePoint" />
+            <mxPoint x="860" y="600" as="sourcePoint" />
             <mxPoint x="960" y="410" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="860" y="570" />
+              <mxPoint x="960" y="570" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="JS4GMvEFGhpzKjeozdGD-18" value="Display feedback and maintenance&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="JS4GMvEFGhpzKjeozdGD-18" value="Add maintenance&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="900" y="480" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="JS4GMvEFGhpzKjeozdGD-20" value="Search" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -148,13 +149,17 @@
             <mxPoint x="570" y="410" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="JS4GMvEFGhpzKjeozdGD-22" value="Add feedback and maintenance system and operations" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="710" y="585" width="120" height="60" as="geometry" />
+        <mxCell id="JS4GMvEFGhpzKjeozdGD-22" value="Display trains&#39; list with feedback and maintenance&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="800" y="600" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="JS4GMvEFGhpzKjeozdGD-23" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="JS4GMvEFGhpzKjeozdGD-22" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="770" y="710" as="sourcePoint" />
             <mxPoint x="770" y="540" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="860" y="570" />
+              <mxPoint x="770" y="570" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="JS4GMvEFGhpzKjeozdGD-24" value="Modify train status" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -169,7 +174,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="JS4GMvEFGhpzKjeozdGD-7" value="Feedback&lt;div&gt;&amp;amp;&lt;/div&gt;&lt;div&gt;Maintenance&amp;nbsp;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="JS4GMvEFGhpzKjeozdGD-7" value="Add feedback&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="710" y="480" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
