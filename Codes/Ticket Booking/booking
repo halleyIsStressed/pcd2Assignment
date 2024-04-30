@@ -58,13 +58,15 @@ void displayAllTicket(TICKET tikcet[], int* numOfTicket);
 void exitFunction(TICKET ticket[], int* numOfTicket);
 
 //Main Menu
-void main(Train trains[], FILE* list) {
-	system("cls");											// Clear the console screen.						
+void main(FILE* list) {
+	system("cls");											// Clear the console screen.
+	Train trains[TRAINS];
+	int numOfTrain = 0;
 	TICKET ticket[100];										// Declare an array of TICKET structs to store ticket information.
 	int numOfTicket = readTicketFile(ticket);				// Call the readTicketFile function to read ticket information from a file. Store the number of tickets read into numOfTicket.
 	FNB fnb[10];
 	int numOfItem = 0;
-	functionsChoosen(ticket, &numOfTicket, fnb, &numOfItem, trains, list);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
+	functionsChoosen(ticket, &numOfTicket, fnb, &numOfItem, trains, list, &numOfTrain);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
 }
 
 int readTicketFile(TICKET ticket[]) {						// Function to read ticket information from a file.
@@ -87,9 +89,8 @@ int readTicketFile(TICKET ticket[]) {						// Function to read ticket informatio
 	return count;								 // Return the total number of tickets read from the file.
 }
 
-void displayTrainList() {
+void displayTrainList(Train trains[], int* numOfTrain) {
 	FILE* list;
-	Train trains[TRAINS];
 	int i = 0;
 
 	if ((list = fopen("train.txt", "r")) == NULL) {
@@ -113,25 +114,25 @@ void displayTrainList() {
 
 	//read data from text file and print out
 	while (fscanf(list, "%d#%[^#]#%d#%[^#]#%[^#]#%[^#]#%lf#%d#%[^\n]",
-		&trains[i].trainID, trains[i].departureStation, &trains[i].departurePlatform, trains[i].departureTime, trains[i].arrivalStation, trains[i].eta,
-		&trains[i].ticketPrice, &trains[i].availableSeats, trains[i].trainStatus) != EOF) {
+		&trains[*numOfTrain].trainID, trains[*numOfTrain].departureStation, &trains[*numOfTrain].departurePlatform, trains[*numOfTrain].departureTime, trains[*numOfTrain].arrivalStation, trains[*numOfTrain].eta,
+		&trains[*numOfTrain].ticketPrice, &trains[*numOfTrain].availableSeats, trains[*numOfTrain].trainStatus) != EOF) {
 		printf("%-10d | %-20s | %-18d | %-14s | %-16s | %-6s | %-13.2lf | %-16d | %s\n",
-			trains[i].trainID,
-			trains[i].departureStation,
-			trains[i].departurePlatform,
-			trains[i].departureTime,
-			trains[i].arrivalStation,
-			trains[i].eta,
-			trains[i].ticketPrice,
-			trains[i].availableSeats,
-			trains[i].trainStatus);
-		i++;
+			trains[*numOfTrain].trainID,
+			trains[*numOfTrain].departureStation,
+			trains[*numOfTrain].departurePlatform,
+			trains[*numOfTrain].departureTime,
+			trains[*numOfTrain].arrivalStation,
+			trains[*numOfTrain].eta,
+			trains[*numOfTrain].ticketPrice,
+			trains[*numOfTrain].availableSeats,
+			trains[*numOfTrain].trainStatus);
+		(*numOfTrain)++;
 	}
 
 	fclose(list);
 }
 
-void functionsChoosen(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], FILE* list) {				// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
+void functionsChoosen(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], FILE* list, int* numOfTrain) {				// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
 	system("cls");
 	int choice;
 
@@ -151,9 +152,9 @@ void functionsChoosen(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfIt
 		scanf("%d", &choice);
 		rewind(stdin);
 		switch (choice) {
-		case 1: addBooking(ticket, numOfTicket, trains, list); break;
+		case 1: addBooking(ticket, numOfTicket, trains, list, numOfTrain); break;
 		case 2: searchBooking(ticket, numOfTicket); break;
-		case 3: editBooking(ticket, numOfTicket); break;
+		case 3: editBooking(ticket, numOfTicket, trains, numOfTrain); break;
 		case 4: deleteBooking(ticket, numOfTicket); break;
 		case 5: displayBooking(ticket, numOfTicket); break;
 		case 6: fnbFunction(fnb, numOfItem); break;
@@ -164,18 +165,11 @@ void functionsChoosen(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfIt
 	} while (choice != 8);					// Continue the loop until the user key in number 8 to exit.
 }
 
-void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], FILE* list) {  //void addBooking(FILE *ticketFile)
+void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], FILE* list, int*numOfTrain) {  //void addBooking(FILE *ticketFile)
 	system("cls");
-	//FILE* trainFile;
-	int i = 0;
 	Train temp;
-	//trainFile = fopen("train.txt", "r");
-	//if ("trainFile == NULL") {
-		//printf("Can't open the file train.txt!\n");
-		//exit(-1);
-	//}
 
-	displayTrainList();
+	displayTrainList(trains, numOfTrain);
 	char confirmAdd, cont;
 	SYSTEMTIME t; //structure for date, time etc
 	printf("\n\n============================================\n");
@@ -216,31 +210,28 @@ void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], FILE* list) {
 		printf(" Arrival Station: ");
 		scanf("%[^\n]", &temp.arrivalStation);
 		rewind(stdin);
-		if (strcmp(temp.departureStation, trains[i].departureStation) == 0) {
-			if (strcmp(temp.arrivalStation, trains[i].arrivalStation) == 0) {
-			strcpy(temp.departureStation, ticket[*numOfTicket].departStation);
-			strcpy(temp.arrivalStation, ticket[*numOfTicket].arrivStation);
-			temp.departurePlatform = ticket[*numOfTicket].departPlatform;
+		for (int i = 0; i < *numOfTrain; i++) {
+			if (strcmp(temp.departureStation, trains[i].departureStation) == 0) {
+				if (strcmp(temp.arrivalStation, trains[i].arrivalStation) == 0) {
+					strcpy(temp.departureStation, ticket[*numOfTicket].departStation);
+					strcpy(temp.arrivalStation, ticket[*numOfTicket].arrivStation);
+					temp.departurePlatform = ticket[*numOfTicket].departPlatform;
+				}
+				else {
+					printf("Arrival Station is not schedule in the Train Schedule List! Please try again.\n");
+					printf(" Arrival Station: ");
+					scanf("%[^\n]", &temp.arrivalStation);
+					rewind(stdin);
+				}
 			}
 			else {
-				printf("Departure Station or Arrival Station is not schedule in the Train Schedule List! Please try again.\n");
+				printf("Departure Station is not schedule in the Train Schedule List! Please try again.\n");
 				printf(" Departure Station: ");
 				scanf("%[^\n]", &temp.departureStation);
 				rewind(stdin);
-				printf(" Arrival Station: ");
-				scanf("%[^\n]", &temp.arrivalStation);
-				rewind(stdin);
 			}
 		}
-		else {
-			printf("Departure Station or Arrival Station is not schedule in the Train Schedule List! Please try again.\n");
-			printf(" Departure Station: ");
-			scanf("%[^\n]", &temp.departureStation);
-			rewind(stdin);
-			printf(" Arrival Station: ");
-			scanf("%[^\n]", &temp.arrivalStation);
-			rewind(stdin);
-		}
+		
 		printf(" Coach (A-J): ");
 		scanf("%c", &ticket[*numOfTicket].coach);
 		ticket[*numOfTicket].coach = toupper(ticket[*numOfTicket].coach);
@@ -341,7 +332,7 @@ void searchBooking(TICKET ticket[], int* numOfTicket) {
 	system("cls");
 }
 
-void editBooking(TICKET ticket[], int* numOfTicket) {
+void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain) {
 	system("cls");
 	int i, editIndex;
 	char editID[10], confirmUpd, cont;
@@ -372,7 +363,7 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].status);
 
 			printf("\n\n");
-			displayTrainList();
+			displayTrainList(trains, numOfTrain);
 			printf("\nEnter Updated Details: \n");
 			printf(" Ticket ID: %s\n", ticket[editIndex].ticketID);
 			printf(" Ticket Holder Name: ");
