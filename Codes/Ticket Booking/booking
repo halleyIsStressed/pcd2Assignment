@@ -54,6 +54,7 @@ void displayBooking(TICKET ticket[], int* numOfTicket);
 void deleteBooking(TICKET ticket[], int* numOfTicket);
 void fnbFunction(FNB fnb[], int* numOfItem);
 void paymentFunction();
+void displayAllTicket(TICKET tikcet[], int* numOfTicket);
 void exitFunction(TICKET ticket[], int* numOfTicket);
 
 //Main Menu
@@ -239,7 +240,7 @@ void addBooking(TICKET ticket[], int* numOfTicket) {  //void addBooking(FILE *ti
 			strcpy(ticket[*numOfTicket].status, "Pending payment...");
 			printf("\n\n======================================================\n");
 			printf("Ticket Summary: \n");
-			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
+			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tBooking Status: \t     %s\n",
 				ticket[*numOfTicket].ticketID, ticket[*numOfTicket].name, ticket[*numOfTicket].bookDate.day, ticket[*numOfTicket].bookDate.month, ticket[*numOfTicket].bookDate.year, ticket[*numOfTicket].time.hour, ticket[*numOfTicket].time.min,
 				ticket[*numOfTicket].departDate.day, ticket[*numOfTicket].departDate.month, ticket[*numOfTicket].departDate.year, ticket[*numOfTicket].departStation, ticket[*numOfTicket].arrivStation,
 				ticket[*numOfTicket].coach, ticket[*numOfTicket].seatNo, ticket[*numOfTicket].status);
@@ -411,7 +412,7 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				printf("\nNo changes made.\n\n");
 			
 			printf("\nCurrent Record Details: \n");
-			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
+			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tBooking Status: \t     %s\n",
 				ticket[editIndex].ticketID, ticket[editIndex].name, ticket[editIndex].bookDate.day, ticket[editIndex].bookDate.month, ticket[editIndex].bookDate.year, ticket[editIndex].time.hour, ticket[editIndex].time.min, ticket[editIndex].departDate.day, ticket[editIndex].departDate.month, ticket[editIndex].departDate.year,
 				ticket[editIndex].departStation, ticket[editIndex].arrivStation, ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].status);
 		}
@@ -440,7 +441,7 @@ void displayBooking(TICKET ticket[], int* numOfTicket) {
 		for (int i = 0; i < *numOfTicket; i++) {
 			if (strcmp(displayName, ticket[i].name) == 0) {
 				found = 1;
-				printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
+				printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tBooking Status: \t     %s\n",
 					ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min, ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year,
 					ticket[i].departStation, ticket[i].arrivStation, ticket[i].coach, ticket[i].seatNo, ticket[i].status);
 			}
@@ -482,9 +483,6 @@ void deleteBooking(TICKET ticket[], int* numOfTicket) {
 				scanf("%c", &confirmDlt);
 				rewind(stdin);
 				if (toupper(confirmDlt) == 'Y') {
-					for (int j = i; j < *numOfTicket - 1; j++) {  // Shift remaining tickets to fill the gap
-						ticket[j] = ticket[j + 1];
-					}
 					(*numOfTicket)--;
 					found = 1;
 					printf("Ticket with ID %s deleted successfully.\n", deleteID);
@@ -583,6 +581,25 @@ void paymentFunction() {
 	else {
 		printf("Invalid payment!\nTicket NOT booked!\n\n");
 	}*/
+}
+
+void displayAllTicket(TICKET ticket[], int* numOfTicket) {
+	system("cls");
+	int i, count = 0;
+	printf("============================================\n");
+	printf("\t    Display ALL Ticket Booking\n");
+	printf("============================================\n\n");
+	printf("%-15s %-20s %-15s %-15s %-15s %-20s %-20s %-6s %-8s %-15s\n",
+		"Booking ID", "Ticket Holder Name", "Booking Date", "Booking Time", "Departure Date", "Departure Station", "Arrival Station", "Coach", "Seat No", "Booking Status");
+	printf("%-15s %-20s %-15s %-15s %-15s %-20s %-20s %-6s %-8s %-15s\n",
+		"==========", "==================", "============", "============", "==============", "=================", "===============", "=====", "=======", "=============");
+	for (i = 0; i < *numOfTicket; i++) {
+		printf("%-15s %-20s  %02d/%02d/%04d  %02d:%02d  %02d/%02d/%04d %-20s %-20s %-6s %-8s %-15s\n",
+			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min, ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year,
+			ticket[i].departStation, ticket[i].arrivStation, ticket[i].coach, ticket[i].seatNo, ticket[i].status);
+		count++;
+	}
+	printf("\n\t%d ticket booking records listed.\n\n", count);
 }
 
 void exitFunction(TICKET ticket[], int* numOfTicket) {
