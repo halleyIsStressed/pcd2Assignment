@@ -336,7 +336,7 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				ticket[editIndex].departDate.day, ticket[editIndex].departDate.month, ticket[editIndex].departDate.year, ticket[editIndex].departStation, ticket[editIndex].arrivStation,
 				ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].status);
 
-			printf("\n");
+			printf("\n\n");
 			displayTrainList();
 			printf("\nEnter Updated Details: \n");
 			printf(" Ticket ID: %s\n", ticket[editIndex].ticketID);
@@ -376,12 +376,12 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 			rewind(stdin);
 			printf(" Coach (A-J): ");
 			scanf("%c", &temp.coach);
-			while (temp.coach >= 'k' || temp.coach >= 'K') {
+			temp.coach = toupper(temp.coach);
+			while (temp.coach >= 'K') {
 				printf("Invalid Coach! Please enter a Coach between A-J.\n");
 				printf(" Coach (A-J): ");
 				scanf("%c", &temp.coach);
 			}
-			temp.coach = toupper(temp.coach);
 			rewind(stdin);
 			printf(" Seat No (1-30): ");
 			scanf("%d", &temp.seatNo);
@@ -405,18 +405,20 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				temp.time.min = ticket[editIndex].time.min;
 				strcpy(temp.status, ticket[editIndex].status);
 				ticket[editIndex] = temp;
+				printf("Update Successfully!\n\n");
 			}
 			else
-				printf("No changes made.\n\n");
-			printf("Update Successfully!\n\n");
+				printf("\nNo changes made.\n\n");
+			
 			printf("\nCurrent Record Details: \n");
 			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
 				ticket[editIndex].ticketID, ticket[editIndex].name, ticket[editIndex].bookDate.day, ticket[editIndex].bookDate.month, ticket[editIndex].bookDate.year, ticket[editIndex].time.hour, ticket[editIndex].time.min, ticket[editIndex].departDate.day, ticket[editIndex].departDate.month, ticket[editIndex].departDate.year,
 				ticket[editIndex].departStation, ticket[editIndex].arrivStation, ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].status);
 		}
-		printf("Edit another ticket booking? (Y = Yes): ");
+		printf("\nEdit another ticket booking? (Y = Yes): ");
 		scanf("%c", &cont);
 		rewind(stdin);
+		printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	} while (toupper(cont) == 'Y');
 
 	system("cls");
