@@ -1,0 +1,6 @@
+SandWich|5.20
+Snack Pack|4.50
+Cookies|3.20
+Bottle Water|2.00
+Coffee|3.80
+Tea|3.00
