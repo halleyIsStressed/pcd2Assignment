@@ -1,0 +1,124 @@
+<mxfile host="app.diagrams.net" modified="2024-05-02T14:21:09.559Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="uiFTeTYGVdG95aCHWnPv" version="24.3.1" type="device">
+  <diagram name="Page-1" id="4VUg6saWRizkleNZj2ED">
+    <mxGraphModel dx="2393" dy="2858" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="iW0ZyhLI2MdNcuru9LTY-1" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;Ticket Booking Module&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="72" y="-1664" width="413" height="136" as="geometry" />
+        </mxCell>
+        <mxCell id="xvihahwI_SfnJdkpDrHd-48" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="277.78999999999996" y="-1528" as="sourcePoint" />
+            <mxPoint x="278" y="-1443" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xvihahwI_SfnJdkpDrHd-12" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Functions Selection&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" parent="1" vertex="1">
+          <mxGeometry x="145" y="-1197" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-1" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Member Login&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="145" y="-1442" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-2" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="277.78999999999996" y="-1288" as="sourcePoint" />
+            <mxPoint x="278" y="-1199" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-11" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-478" y="-939" as="sourcePoint" />
+            <mxPoint x="1242" y="-939" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-22" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="277.78999999999985" y="-1043" as="sourcePoint" />
+            <mxPoint x="278" y="-939" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-23" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Add Ticket Booking&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="-610" y="-844" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-24" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Edit Ticket Booking&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="75" y="-839" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-44" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Cancel Ticket Booking&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="765" y="-844" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-45" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Show available Trains, Seats, Departure Time, Arrival Time, Departure Platform, Ticket Price from Trains Scheduling&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="-610" y="-596" width="267" height="221" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-46" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Add On F&amp;amp;B&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="-610" y="-281" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-48" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Search Ticket Booking&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="-271" y="-93" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-49" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Display Ticket Booking Details&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="422" y="-93" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-50" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Payment&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1111" y="-93" width="267" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-51" value="&lt;font style=&quot;font-size: 25px;&quot;&gt;Show available Trains, Seats, Departure Time, Arrival Time, Departure Platform, Ticket Price from Trains Scheduling&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="75" y="-591" width="267" height="221" as="geometry" />
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-53" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="207.7299999999999" y="-934" as="sourcePoint" />
+            <mxPoint x="208" y="-839" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-57" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-139.0000000000001" y="-937" as="sourcePoint" />
+            <mxPoint x="-139" y="-94" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-58" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" target="fyX8jZDrwODTpCCliRIW-49">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="551.9999999999999" y="-935" as="sourcePoint" />
+            <mxPoint x="552" y="-104" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-59" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" target="fyX8jZDrwODTpCCliRIW-50">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1244" y="-940" as="sourcePoint" />
+            <mxPoint x="1244" y="-96" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-61" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-476.98000000000013" y="-940" as="sourcePoint" />
+            <mxPoint x="-476.71000000000004" y="-845" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-62" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-476.98000000000013" y="-690" as="sourcePoint" />
+            <mxPoint x="-476.71000000000004" y="-595" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-63" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-476.98000000000013" y="-375" as="sourcePoint" />
+            <mxPoint x="-476.71000000000004" y="-280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-64" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="208.0199999999999" y="-685" as="sourcePoint" />
+            <mxPoint x="208.29" y="-590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fyX8jZDrwODTpCCliRIW-65" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="897.0199999999999" y="-939" as="sourcePoint" />
+            <mxPoint x="897.29" y="-844" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
