@@ -128,11 +128,12 @@ char charInput(const char* prompt);							// Used as a one-liner for prompting a
 void flush(FILE* stream); 									// Flushes overflowing data
 int sendMail(char* to_mail, int code);						// Extra Feature: Sending Email
 void memberLostAndFound(Member* current_member);			// Extra Feature: Lost and Found
+void lnfList();
 void lnfReport(Member* current_member);
 void lnfSearch();
-void sortedDisplay(char*);
+void lnfDisplaySort(char*);
 
-// Function Declarations: BOOKING MODULE (Implementation 60%)
+// Function Declarations: BOOKING MODULE (Implementation 100%)
 int readTicketFile(TICKET ticket[]);
 int readTrainFile(Train trains[]);
 int readFnBFile(FNB fnb[]);
@@ -147,9 +148,10 @@ void displayFnBMenu(FNB fnb[], int* numOfItem);
 double fnbFunction(FNB fnb[], int* numOfItem);
 void paymentFunction(TICKET ticket[], int* numOfTicket);
 bool exitFunction(TICKET ticket[], int* numOfTicket);
+void displayAllTicket();
 
 
-// Function Declarations: STAFF MODULE (Implementation 90%)
+// Function Declarations: STAFF MODULE (Implementation 100%)
 
 void staffMain();
 bool staffLogin(Staff* place_to_put_staff);
@@ -188,6 +190,7 @@ void line();
 
 // Main Menus
 void main() {
+
 	int option;
 	char abort;
 	do {
@@ -645,7 +648,7 @@ bool memberMenu(Member* current_member) {
 		printf("2. Display Train Schedule List\n");
 		printf("3. Book a Train Ticket\n");					// Combine: zy part
 		printf("4. Lost and Found\n");
-		printf("5. Return to Main Menu\n\n");
+		printf("5. Logout\n\n");
 		printf(">>>>> ");
 		scanf("%d", &memberOption);
 		flush(stdin);
@@ -823,6 +826,8 @@ void memberLostAndFound(Member* current_member) {
 	bool backToMemberMenu = false;
 	while (backToMemberMenu == false) {
 		int lnfOption = 0;
+		lnfList();
+
 		printf("\nChoose Mode.\n");
 		printf("1. Report Missing Item\n");
 		printf("2. Search Missing Item\n");
@@ -850,6 +855,28 @@ void memberLostAndFound(Member* current_member) {
 	system("cls");
 }
 
+void lnfList() {
+	system("cls");
+	FILE* fLost = fopen("lostfound.bin", "rb");
+	if (fLost == NULL) {
+		printf("Error at opening File!");
+		exit(1);
+	}
+	int count = 0;
+	LostItem itemBuffer;
+	printf("Lost Item List\n");
+	printf("===================\n\n");
+	printf("%-20s | %-10s | %-50s | %-30s \n", "Type", "Colour", "Lost on Station", "Reporter");
+	printf("-----------------------------------------------------------------------------------------------------------------\n");
+
+	while (fread(&itemBuffer, sizeof(LostItem), 1, fLost)) {				// Looping to read each structure variable saved into lostfound.bin.
+		printf("%-20s | %-10s | %-50s | %-30s \n", itemBuffer.type, itemBuffer.colour, itemBuffer.location, itemBuffer.reporter);
+		count++;
+	}
+	printf("\n%d item(s) displayed.\nIf any item(s) of interest was found, please report to the Customer Service counter on any Station.\n", count);
+	fclose(fLost);
+}
+
 void lnfReport(Member* current_member) {
 	FILE* fLost;
 	fLost = fopen("lostfound.bin", "ab");
@@ -875,29 +902,30 @@ void lnfSearch() {
 	bool backToMemberMenu = false;
 	char itemType[20], itemColour[10], itemLocation[STATION];
 
-
 	while (backToMemberMenu == false) {
 		int searchOption = 0;
+		system("cls");
+		lnfList();
 		printf("\nChoose 'search by' method.\n");
 		printf("1. Type\n");
 		printf("2. Colour\n");
 		printf("3. Station\n");
-		printf("4. Return to Member Interface\n");
+		printf("4. Return to Mode Selection\n");
 		printf("\n>>>>> ");
 		scanf("%d", &searchOption);
 		flush(stdin);
 		switch (searchOption) {
 		case 1:
 			stringInput("\nEnter the type of the item (Phone, Bottle, etc) > ", &itemType, 20);
-			sortedDisplay(itemType);
+			lnfDisplaySort(itemType);
 			break;
 		case 2:
 			stringInput("\nEnter the colour of the item (Blue, White, etc) > ", &itemColour, 10);
-			sortedDisplay(itemColour);
+			lnfDisplaySort(itemColour);
 			break;
 		case 3:
 			stringInput("\nEnter the station which this item was lost      > ", &itemLocation, STATION);
-			sortedDisplay(itemLocation);
+			lnfDisplaySort(itemLocation);
 			break;
 		case 4:
 			backToMemberMenu = true;
@@ -912,7 +940,7 @@ void lnfSearch() {
 
 }
 
-void sortedDisplay(char* sorter) {
+void lnfDisplaySort(char* sorter) {
 	FILE* fLost = fopen("lostfound.bin", "rb");
 	if (fLost == NULL) {
 		printf("Error at opening File!");
@@ -950,6 +978,9 @@ void sortedDisplay(char* sorter) {
 	fclose(fLost);
 }
 
+
+
+// Member Module Branch: BOOKING MODULE
 void bookingMain() {
 	system("cls");											// Clear the console screen.
 	Train trains[TRAINS];
@@ -1007,7 +1038,7 @@ void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTra
 		printf("\nEnter Ticket Booking Details: \n");
 		printf(" Ticket Holder Name: ");
 		scanf("%[^\n]", &ticket[*numOfTicket].name);
-		printf(" Deparutre Date: \n");
+		printf(" Departure Date: \n");
 		printf("\t     dd: ");
 		scanf("%d", &ticket[*numOfTicket].departDate.day);
 		while (ticket[*numOfTicket].departDate.day <= 0 || ticket[*numOfTicket].departDate.day >= 32) {
@@ -1523,6 +1554,28 @@ bool exitFunction(TICKET ticket[], int* numOfTicket) {
 	return true;
 }
 
+void displayAllTicket() {
+	system("cls");
+	TICKET ticket[100];										// Declare an array of TICKET structs to store ticket information.
+	int numOfTicket = readTicketFile(ticket);				// Call the readTicketFile function to read ticket information from a file. Store the number of tickets read into numOfTicket.
+
+
+	int i, count = 0;
+	printf("============================================\n");
+	printf("\t    Display ALL Ticket Booking\n");
+	printf("============================================\n\n");
+	printf("\n%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "Booking ID", "Ticket Holder Name", "Booking Date", "Booking Time", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "ETA", "Coach", "Seat No", "Departure Platform", "Ticket Price (RM)", "Booking Status");
+	printf("%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "==========", "==================", "============", "============", "==============", "=================", "===============", "==============", "=====", "=====", "=======", "==================", "=================", "===================");
+	for (i = 0; i < numOfTicket; i++) {
+		printf("%-10s %-20s %02d/%02d/%04d \t%02d:%02d \t\t%02d/%02d/%04d %14s %18s %15s %10s %4c \t    %02d %18d %20.2lf %23s\n",
+			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min,
+			ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation,
+			ticket[i].departTime, ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
+		count++;
+	}
+	printf("\n\t%d ticket booking records listed.\nPress any key to continue... ", count);
+	getch();
+}
 
 
 // Post-Login Display and Functions: STAFF MODULE
@@ -1540,7 +1593,7 @@ void staffMenu(Staff* staffInformation) {
 		printf("Position : %s\n", staffInformation->information.position);
 		decorationFlower();
 		if (strcmp(staffInformation->information.position, "MANAGER") == 0) {
-			printf("%25s", "1. Modify\n2. Display Duty Schedule\n3. Add Member Register\n4. Train Scheduling\n5. Ticket Booking\n6. RESIGNATION\n7. Search Staff Information\n8. EXIT\n");
+			printf("%25s", "1. Modify\n2. Display Duty Schedule\n3. Add Member Register\n4. Train Scheduling\n5. View All Tickets\n6. Search Staff Information\n7. RESIGNATION\n8. Logout\n");
 			printf("Select Desired Function >> ");
 			rewind(stdin);
 			scanf("%d", &selectF);
@@ -1558,15 +1611,15 @@ void staffMenu(Staff* staffInformation) {
 				system("cls");
 				scheduleMain();
 				break;
-			case 5:		// Combine: zy function
+			case 5:
+				displayAllTicket();
 				break;
 			case 6:
 				system("cls");
-				returnToMain = applyResign();
+				searchStaff();
 				break;
 			case 7:
-				system("cls");
-				searchStaff();
+				returnToMain = applyResign();
 				break;
 			case 8:
 				system("cls");
@@ -1579,7 +1632,7 @@ void staffMenu(Staff* staffInformation) {
 
 		}
 		else {
-			printf("%25s", "1. Modify\n2. Display Duty Schedule\n3. Add Member Register\n4. Train Scheduling\n5. Ticket Booking\n6. RESIGNATION\n7. EXIT\n");
+			printf("%25s", "1. Modify\n2. Display Duty Schedule\n3. Add Member Register\n4. Train Scheduling\n5. View All Tickets\n6. View Lost Item List\n7. RESIGNATION\n8. Logout\n");
 			printf("Select the function you want >> ");
 			rewind(stdin);
 			scanf("%d", &selectF);
@@ -1599,12 +1652,18 @@ void staffMenu(Staff* staffInformation) {
 				scheduleMain();
 				break;
 			case 5:
+				displayAllTicket();
 				break;
 			case 6:
+				lnfList();
+				getch();
+				system("cls");
+				break;
+			case 7:
 				system("cls");
 				returnToMain = applyResign();
 				break;
-			case 7:
+			case 8:
 				system("cls");
 				returnToMain = true;
 				break;
@@ -2015,10 +2074,13 @@ void searchStaff() {
 	}
 
 	if (!found) {
-		printf("Invalid ID entered.\n");
+		printf("Invalid ID entered. Returning to Menu...");
+		getch();
 	}
 }
 
+
+// Staff Module Branch: SCHEDULING MODULE
 void scheduleMain() {
 	//prompt user to choose a module
 	int choice;
@@ -2680,11 +2742,12 @@ int readFnBFile(FNB fnb[]) {
 	return count;
 }
 
-
-
 void clearInputBuffer() {
 	while (getchar() != '\n');
 }
+
+
+ // Decorative Functions
 
 void decorationFlower() {
 	printf("%s", "*");
