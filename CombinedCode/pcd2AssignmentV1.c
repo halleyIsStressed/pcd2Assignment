@@ -1510,9 +1510,9 @@ bool exitFunction(TICKET ticket[], int* numOfTicket) {
 		exit(-1);
 	}
 	for (int i = 0; i < *numOfTicket; i++) {
-		fprintf(ticketFile, "%s|%s|%02d/%02d/%04d|%02d:%02d|%02d/%02d/%04d|%s|%s|%c|%d|%s\n",
+		fprintf(ticketFile, "%s|%s|%02d/%02d/%04d|%02d:%02d|%02d/%02d/%04d|%s|%s|%s|%s|%c|%02d|%d|%.2lf|%s\n",
 			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min, ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year,
-			ticket[i].departStation, ticket[i].arrivStation, ticket[i].coach, ticket[i].seatNo, ticket[i].status);
+			ticket[i].departStation, ticket[i].arrivStation, ticket[i].departTime, ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
 	}
 	fclose(ticketFile);
 	printf("======================================================\n");
