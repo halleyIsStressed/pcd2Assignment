@@ -61,12 +61,14 @@ struct Time {
 };
 
 typedef struct {								 // Define a custom data type named TICKET using typedef.
-	char ticketID[10], name[30], coach, status[30], departStation[30], arrivStation[30];
+	char ticketID[10], name[30], coach, status[30], departStation[50], arrivStation[50];
+	char departTime[10], estimateTimeArrive[10];
 	struct DATE bookDate, departDate;			//Holds the booking date, and departure date using the DATE struct
-	struct Time time;							// Holds the time using the TIME struct.
-	int seatNo;
-	double amount;
+	struct Time time;						// Holds the time using the TIME struct.
+	int seatNo, departPlatform;
+	double amount, ticPrice;
 }TICKET;
+
 
 typedef struct {
 	char fnbName[30];
@@ -132,15 +134,17 @@ void sortedDisplay(char*);
 
 // Function Declarations: BOOKING MODULE (Implementation 60%)
 int readTicketFile(TICKET ticket[]);
+int readTrainFile(Train trains[]);
+int readFnBFile(FNB fnb[]);
 void bookingMain();
 void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem);
-void addBooking(TICKET ticket[], int* numOfTicket);
+void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem);
 void searchBooking(TICKET ticket[], int* numOfTicket);
-void editBooking(TICKET ticket[], int* numOfTicket);
+void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain);
 void displayBooking(TICKET ticket[], int* numOfTicket);
 void deleteBooking(TICKET ticket[], int* numOfTicket);
-void fnbFunction(FNB fnb[], int* numOfItem);
-void paymentFunction();
+double fnbFunction(FNB fnb[], int* numOfItem);
+void paymentFunction(TICKET ticket[], int* numOfTicket);
 void exitFunction(TICKET ticket[], int* numOfTicket);
 
 
@@ -173,6 +177,10 @@ void decorationFlower();
 void title();
 void decoration();
 void line();
+
+/*-----------------CODE BODY STARTS HERE-----------------------*/
+/*-----------------CODE BODY STARTS HERE-----------------------*/
+/*-----------------CODE BODY STARTS HERE-----------------------*/
 
 
 // User Interface Functions
@@ -761,6 +769,9 @@ bool memberMenu(Member* current_member) {
 			break;
 		case 2:
 			displayTrainList();
+			printf("\nPress any key to go back.");
+			getch();
+			system("cls");
 			break;
 		case 3:
 			bookingMain();
@@ -939,12 +950,14 @@ void sortedDisplay(char* sorter) {
 }
 
 void bookingMain() {
-	system("cls");											// Clear the console screen.						
+	system("cls");											// Clear the console screen.
+	Train trains[TRAINS];
+	int numOfTrain = readTrainFile(trains);
 	TICKET ticket[100];										// Declare an array of TICKET structs to store ticket information.
 	int numOfTicket = readTicketFile(ticket);				// Call the readTicketFile function to read ticket information from a file. Store the number of tickets read into numOfTicket.
 	FNB fnb[10];
-	int numOfItem = 0;
-	bookingMenu(ticket, &numOfTicket, fnb, &numOfItem);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
+	int numOfItem = readFnBFile(fnb);
+	functionsChoosen(ticket, &numOfTicket, fnb, &numOfItem, trains, &numOfTrain);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
 }
 
 void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem) {				// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
@@ -960,30 +973,31 @@ void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem) {
 		printf("3. Edit Ticket Booking(s)\n");
 		printf("4. Cancel Ticket Booking(s)\n");
 		printf("5. Display Ticket Booking(s)\n");
-		printf("6. F&B\n");
-		printf("7. Payment\n");
-		printf("8. Exit TICKET BOOKING\n\n");
-		printf("Please choose from 1-8: ");
+		printf("6. Payment\n");
+		printf("7. Exit TICKET BOOKING\n\n");
+		printf("Please choose from 1-7: ");
 		scanf("%d", &choice);
 		rewind(stdin);
 		switch (choice) {
-		case 1: addBooking(ticket, numOfTicket); break;
+		case 1: addBooking(ticket, numOfTicket, trains, numOfTrain, fnb, numOfItem); break;
 		case 2: searchBooking(ticket, numOfTicket); break;
-		case 3: editBooking(ticket, numOfTicket); break;
+		case 3: editBooking(ticket, numOfTicket, trains, numOfTrain); break;
 		case 4: deleteBooking(ticket, numOfTicket); break;
 		case 5: displayBooking(ticket, numOfTicket); break;
-		case 6: fnbFunction(fnb, numOfItem); break;
-		case 7: paymentFunction(); break;
-		case 8: exitFunction(ticket, numOfTicket); break;
+		case 6: paymentFunction(ticket, numOfTicket); break;
+		case 7: exitFunction(ticket, numOfTicket); break;
 		default: printf("Invalid choice! Please key in again.\n\n");
 		};
-	} while (choice != 8);					// Continue the loop until the user key in number 8 to exit.
+	} while (choice != 7);					// Continue the loop until the user key in number 8 to exit.
 }
 
-void addBooking(TICKET ticket[], int* numOfTicket) {  //void addBooking(FILE *ticketFile)
+void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem) {  //void addBooking(FILE *ticketFile)
 	system("cls");
-	displayTrainList();
-	char confirmAdd, cont;
+	Train temp;
+	int found;
+	char confirmAdd, cont, addOn;
+	double fnbTotal;
+	displayTrainList();				// displayTrainList(trains);
 	SYSTEMTIME t; //structure for date, time etc
 	printf("\n\n============================================\n");
 	printf("\t    Add Ticket Booking\n");
@@ -1017,12 +1031,29 @@ void addBooking(TICKET ticket[], int* numOfTicket) {  //void addBooking(FILE *ti
 			scanf("%d", &ticket[*numOfTicket].departDate.year);
 		}
 		rewind(stdin);
-		printf(" Departure Station: ");
-		scanf("%[^\n]", &ticket[*numOfTicket].departStation);
-		rewind(stdin);
-		printf(" Arrival Station: ");
-		scanf("%[^\n]", &ticket[*numOfTicket].arrivStation);
-		rewind(stdin);
+		do {
+			found = 0;
+			printf(" Departure Station: ");
+			scanf("%[^\n]", &temp.departureStation);
+			rewind(stdin);
+			printf(" Arrival Station: ");
+			scanf("%[^\n]", &temp.arrivalStation);
+			rewind(stdin);
+			for (int i = 0; i < *numOfTrain; i++) {
+				if (strcmp(temp.departureStation, trains[i].departureStation) == 0 && strcmp(temp.arrivalStation, trains[i].arrivalStation) == 0) {
+					found = 1;
+					strcpy(ticket[*numOfTicket].departStation, temp.departureStation);
+					strcpy(ticket[*numOfTicket].arrivStation, temp.arrivalStation);
+					strcpy(ticket[*numOfTicket].departTime, trains[i].departureTime);
+					strcpy(ticket[*numOfTicket].estimateTimeArrive, trains[i].eta);
+					ticket[*numOfTicket].departPlatform = trains[i].departurePlatform;
+					ticket[*numOfTicket].ticPrice = trains[i].ticketPrice;
+				}
+			}
+			if (!found)
+				printf("Train Not Found! Please Re-enter.\n");
+		} while (!found);
+
 		printf(" Coach (A-J): ");
 		scanf("%c", &ticket[*numOfTicket].coach);
 		ticket[*numOfTicket].coach = toupper(ticket[*numOfTicket].coach);
@@ -1040,6 +1071,19 @@ void addBooking(TICKET ticket[], int* numOfTicket) {  //void addBooking(FILE *ti
 			scanf("%d", &ticket[*numOfTicket].seatNo);
 		}
 		rewind(stdin);
+		do {
+			printf(" Add on some food or bevarage? (Y = Yes): ");
+			scanf("%c", &addOn);
+			rewind(stdin);
+			if (toupper(addOn) == 'Y') {
+				displayFnBMenu(fnb, numOfItem);
+				fnbTotal = fnbFunction(fnb, numOfItem);
+				ticket[*numOfTicket].ticPrice += fnbTotal;
+				printf(" Add on some food or bevarage? (Y = Yes): ");
+				scanf("%c", &addOn);
+				rewind(stdin);
+			}
+		} while (toupper(addOn) == 'Y');
 
 		printf("Confirm to make the booking? (Y = Yes): ");
 		scanf("%c", &confirmAdd);
@@ -1056,10 +1100,10 @@ void addBooking(TICKET ticket[], int* numOfTicket) {  //void addBooking(FILE *ti
 			strcpy(ticket[*numOfTicket].status, "Pending payment...");
 			printf("\n\n======================================================\n");
 			printf("Ticket Summary: \n");
-			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
+			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tDeparture Time:      %s\n\tETA: \t\t     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %02d\n\tDeparture Platform:  %d\n\tTicket Price (RM):   %.2lf\n\tBooking Status:      %s\n",
 				ticket[*numOfTicket].ticketID, ticket[*numOfTicket].name, ticket[*numOfTicket].bookDate.day, ticket[*numOfTicket].bookDate.month, ticket[*numOfTicket].bookDate.year, ticket[*numOfTicket].time.hour, ticket[*numOfTicket].time.min,
 				ticket[*numOfTicket].departDate.day, ticket[*numOfTicket].departDate.month, ticket[*numOfTicket].departDate.year, ticket[*numOfTicket].departStation, ticket[*numOfTicket].arrivStation,
-				ticket[*numOfTicket].coach, ticket[*numOfTicket].seatNo, ticket[*numOfTicket].status);
+				ticket[*numOfTicket].departTime, ticket[*numOfTicket].estimateTimeArrive, ticket[*numOfTicket].coach, ticket[*numOfTicket].seatNo, ticket[*numOfTicket].departPlatform, ticket[*numOfTicket].ticPrice, ticket[*numOfTicket].status);
 			(*numOfTicket)++;
 			printf("======================================================\n");
 		}
@@ -1100,14 +1144,15 @@ void searchBooking(TICKET ticket[], int* numOfTicket) {
 			scanf("%d", &searchYear);
 		}
 		rewind(stdin);
-		printf("\n%-10s %-20s %-15s %-15s %-15s %-6s %-8s\n", "Ticket ID", "Ticket Holder Name", "Departure Date", "Departure Station", "Arrival Station", "Coach", "Seat No");
-		printf("%-10s %-20s %-15s %-15s %-15s %-6s %-8s\n", "=========", "==================", "==============", "=================", "===============", "=====", "=======");
+		printf("\n%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "Booking ID", "Ticket Holder Name", "Booking Date", "Booking Time", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "ETA", "Coach", "Seat No", "Departure Platform", "Ticket Price (RM)", "Booking Status");
+		printf("%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "==========", "==================", "============", "============", "==============", "=================", "===============", "==============", "=====", "=====", "=======", "==================", "=================", "===================");
 		for (i = 0; i < *numOfTicket; i++) {
 			if (searchMonth == ticket[i].departDate.month && searchYear == ticket[i].departDate.year) {
 				found = 1;
-				printf("%-10s %-20s %02d/%02d/%04d %18s %12s %10c %7d\n",
-					ticket[i].ticketID, ticket[i].name, ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation,
-					ticket[i].coach, ticket[i].seatNo);
+				printf("%-10s %-20s %02d/%02d/%04d \t%02d:%02d \t\t%02d/%02d/%04d %14s %18s %15s %10s %4c \t    %02d %18d %20.2lf %23s\n",
+					ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min,
+					ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation,
+					ticket[i].departTime, ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
 				count++;
 			}
 		}
@@ -1123,11 +1168,12 @@ void searchBooking(TICKET ticket[], int* numOfTicket) {
 	system("cls");
 }
 
-void editBooking(TICKET ticket[], int* numOfTicket) {
+void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain) {
 	system("cls");
-	int i, editIndex;
+	int i, editIndex, found;
 	char editID[10], confirmUpd, cont;
 	TICKET temp;
+	Train tempTrain;
 	printf("============================================\n");
 	printf("\t    Edit Ticket Booking\n");
 	printf("============================================\n\n");
@@ -1148,10 +1194,10 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 		}
 		else {
 			printf("\nRecord Found: \n");
-			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
+			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tDeparture Time:      %s\n\tETA: \t\t     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %02d\n\tDeparture Platform:  %d\n\tTicket Price (RM):   %.2lf\n\tBooking Status:      %s\n",
 				ticket[editIndex].ticketID, ticket[editIndex].name, ticket[editIndex].bookDate.day, ticket[editIndex].bookDate.month, ticket[editIndex].bookDate.year, ticket[editIndex].time.hour, ticket[editIndex].time.min,
 				ticket[editIndex].departDate.day, ticket[editIndex].departDate.month, ticket[editIndex].departDate.year, ticket[editIndex].departStation, ticket[editIndex].arrivStation,
-				ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].status);
+				ticket[editIndex].departTime, ticket[editIndex].estimateTimeArrive, ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].departPlatform, ticket[editIndex].ticPrice, ticket[editIndex].status);
 
 			printf("\n\n");
 			displayTrainList();
@@ -1185,12 +1231,29 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				scanf("%d", &temp.departDate.year);
 			}
 			rewind(stdin);
-			printf(" Departure Station: ");
-			scanf("%[^\n]", &temp.departStation);
-			rewind(stdin);
-			printf(" Arrival Station: ");
-			scanf("%[^\n]", &temp.arrivStation);
-			rewind(stdin);
+			do {
+				found = 0;
+				printf(" Departure Station: ");
+				scanf("%[^\n]", &tempTrain.departureStation);
+				rewind(stdin);
+				printf(" Arrival Station: ");
+				scanf("%[^\n]", &tempTrain.arrivalStation);
+				rewind(stdin);
+				for (int j = 0; j < *numOfTrain; j++) {
+					if (strcmp(tempTrain.departureStation, trains[j].departureStation) == 0 && strcmp(tempTrain.arrivalStation, trains[j].arrivalStation) == 0) {
+						found = 1;
+						strcpy(temp.departStation, tempTrain.departureStation);
+						strcpy(temp.arrivStation, tempTrain.arrivalStation);
+						strcpy(temp.departTime, trains[j].departureTime);
+						strcpy(temp.estimateTimeArrive, trains[j].eta);
+						temp.departPlatform = trains[j].departurePlatform;
+						temp.ticPrice = trains[j].ticketPrice;
+					}
+				}
+				if (!found)
+					printf("Train Not Found! Please Re-enter.\n");
+			} while (!found);
+
 			printf(" Coach (A-J): ");
 			scanf("%c", &temp.coach);
 			temp.coach = toupper(temp.coach);
@@ -1221,6 +1284,11 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				temp.time.hour = ticket[editIndex].time.hour;
 				temp.time.min = ticket[editIndex].time.min;
 				strcpy(temp.status, ticket[editIndex].status);
+				strcpy(ticket[editIndex].departStation, temp.departStation);
+				strcpy(ticket[editIndex].arrivStation, temp.arrivStation);
+				strcpy(ticket[editIndex].departTime, temp.estimateTimeArrive);
+				ticket[editIndex].departPlatform = temp.departPlatform;
+				ticket[editIndex].ticPrice = temp.ticPrice;
 				ticket[editIndex] = temp;
 				printf("Update Successfully!\n\n");
 			}
@@ -1228,9 +1296,10 @@ void editBooking(TICKET ticket[], int* numOfTicket) {
 				printf("\nNo changes made.\n\n");
 
 			printf("\nCurrent Record Details: \n");
-			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
-				ticket[editIndex].ticketID, ticket[editIndex].name, ticket[editIndex].bookDate.day, ticket[editIndex].bookDate.month, ticket[editIndex].bookDate.year, ticket[editIndex].time.hour, ticket[editIndex].time.min, ticket[editIndex].departDate.day, ticket[editIndex].departDate.month, ticket[editIndex].departDate.year,
-				ticket[editIndex].departStation, ticket[editIndex].arrivStation, ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].status);
+			printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tDeparture Time:      %s\n\tETA: \t\t     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %02d\n\tDeparture Platform:  %d\n\tTicket Price (RM):   %.2lf\n\tBooking Status:      %s\n",
+				ticket[editIndex].ticketID, ticket[editIndex].name, ticket[editIndex].bookDate.day, ticket[editIndex].bookDate.month, ticket[editIndex].bookDate.year, ticket[editIndex].time.hour, ticket[editIndex].time.min,
+				ticket[editIndex].departDate.day, ticket[editIndex].departDate.month, ticket[editIndex].departDate.year, ticket[editIndex].departStation, ticket[editIndex].arrivStation,
+				ticket[editIndex].departTime, ticket[editIndex].estimateTimeArrive, ticket[editIndex].coach, ticket[editIndex].seatNo, ticket[editIndex].departPlatform, ticket[editIndex].ticPrice, ticket[editIndex].status);
 		}
 		printf("\nEdit another ticket booking? (Y = Yes): ");
 		scanf("%c", &cont);
@@ -1257,9 +1326,10 @@ void displayBooking(TICKET ticket[], int* numOfTicket) {
 		for (int i = 0; i < *numOfTicket; i++) {
 			if (strcmp(displayName, ticket[i].name) == 0) {
 				found = 1;
-				printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %d\n\tStatus: \t     %s\n",
-					ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min, ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year,
-					ticket[i].departStation, ticket[i].arrivStation, ticket[i].coach, ticket[i].seatNo, ticket[i].status);
+				printf("\n\tBooking ID: \t     %s\n\tTicket Holder Name:  %s\n\tBooking Date: \t     %02d/%02d/%04d\n\tBooking Time: \t     %02d:%02d\n\tDeparture Date:      %02d/%02d/%04d\n\tDeparture Station:   %s\n\tArrival Station:     %s\n\tDeparture Time:      %s\n\tETA: \t\t     %s\n\tCoach: \t\t     %c\n\tSeat No: \t     %02d\n\tDeparture Platform:  %d\n\tTicket Price (RM):   %.2lf\n\tBooking Status:      %s\n",
+					ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min,
+					ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation,
+					ticket[i].departTime, ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
 			}
 		}
 		if (!found) {
@@ -1293,15 +1363,17 @@ void deleteBooking(TICKET ticket[], int* numOfTicket) {
 				printf("\n\tDeparture Date:      %02d/%02d/%04d", ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year);
 				printf("\n\tDeparture Station:   %s", ticket[i].departStation);
 				printf("\n\tArrival Station:     %s", ticket[i].arrivStation);
+				printf("\n\tDeparture Time : % s", ticket[i].departTime);
+				printf("\n\tETA: \t\t% s", ticket[i].estimateTimeArrive);
 				printf("\n\tCoach: \t\t     %c", ticket[i].coach);
 				printf("\n\tSeat No: \t     %d", ticket[i].seatNo);
+				printf("\n\tDeparture Platform : % d", ticket[i].departPlatform);
+				printf("\n\tTicket Price(RM) : % .2lf", ticket[i].ticPrice);
+				printf("\n\tBooking Status : % s", ticket[i].status);
 				printf("\n\nConfirm deletion of this ticket? (Y = Yes): ");
 				scanf("%c", &confirmDlt);
 				rewind(stdin);
 				if (toupper(confirmDlt) == 'Y') {
-					for (int j = i; j < *numOfTicket - 1; j++) {  // Shift remaining tickets to fill the gap
-						ticket[j] = ticket[j + 1];
-					}
 					(*numOfTicket)--;
 					found = 1;
 					printf("Ticket with ID %s deleted successfully.\n", deleteID);
@@ -1324,82 +1396,99 @@ void deleteBooking(TICKET ticket[], int* numOfTicket) {
 	system("cls");
 }
 
-void fnbFunction(FNB fnb[], int* numOfItem) {
-	system("cls");
-	int choice, quantity, cont;
-	double fnbTotal = 0;
-	FILE* fnbFile;
-	fnbFile = fopen("F&B.txt", "r");
-	if (fnbFile == NULL) {
-		printf("Can't open the file F&B.txt!\n\n");
+double fnbFunction(FNB fnb[], int* numOfItem) {
+	int choice, quantity;
+	double fnbTotal = 0.0;
+
+	printf("\nPlease enter the item number you'd like to order (1-6): "); //Ask for user's choice
+	scanf("%d", &choice);
+	rewind(stdin);
+	if (choice < 1 || choice > *numOfItem) {
+		printf("Invalid choice!\n");
 		return;
 	}
-	else {
-		while (fscanf(fnbFile, "%[^|]|%lf\n", &fnb[*numOfItem].fnbName, &fnb[*numOfItem].price) != EOF)
-			(*numOfItem)++;
-		do {
-			printf("============================================\n");
-			printf("\t      F&B MENU\n");
-			printf("============================================\n\n");
-			for (int i = 0; i < *numOfItem; i++) {
-				printf("%d. %s - RM%.2lf\n", i + 1, fnb[i].fnbName, fnb[i].price);
-			}
-
-			printf("\nPlease enter the item number you'd like to order (1-6): "); //Ask for user's choice
-			scanf("%d", &choice);
-			if (choice < 1 || choice > *numOfItem) {
-				printf("Invalid choice!\n");
-				return;
-			}
-
-			printf("Enter the quantity: ");  //Ask for the quantity
-			scanf("%d", &quantity);
-			if (quantity <= 0) {
-				printf("Invalid quantity!\n");
-				return;
-			}
-			fnbTotal = fnb[choice - 1].price * quantity;  //Calculate total price
-
-			printf("\nOrder Summary:\n");  //Display order summary
-			printf("%d x %s - RM%.2lf\n", quantity, fnb[choice - 1].fnbName, fnbTotal);
-			printf("Total amount: RM%.2lf\n\n", fnbTotal);
-
-			printf("Add another order? (Y = Yes): ");
-			scanf("%c", &cont);
-			rewind(stdin);
-		} while (toupper(cont) == 'Y');
+	printf("Enter the quantity: ");  //Ask for the quantity
+	scanf("%d", &quantity);
+	rewind(stdin);
+	if (quantity <= 0) {
+		printf("Invalid quantity!\n");
+		return;
 	}
-	fclose(fnbFile);
-	system("cls");
+	fnbTotal = fnb[choice - 1].fnbPrice * quantity;  //Calculate total price
+
+	printf("\nOrder Summary:\n");  //Display order summary
+	printf("%d x %s - RM%.2lf\n", quantity, fnb[choice - 1].fnbName, fnbTotal);
+	printf("Total amount: RM%.2lf\n\n", fnbTotal);
+
+	return fnbTotal;
 }
 
-void paymentFunction() {
-	/*int paid, creditCard, onlineBanking;
-	ticket.amount = count * 65.00;
-	printf("\nPlace booking:\n");
-	printf("Total amount: %.2lf", ticket.amount);
-	printf("\nPay by:\n 1. Credit Card\n 2. Online Banking\n >  ");
-	scanf("%d", &paid);
-	rewind(stdin);
-	if (paid = 1) {
-		printf("Please enter your Credit Card No: ");
-		scanf("%d", &creditCard);
+void paymentFunction(TICKET ticket[], int* numOfTicket) {
+	system("cls");
+	TICKET temp;
+	int paid, creditCard, onlineBanking, found;
+	char cont;
+	printf("============================================\n");
+	printf("\t\t  Payment\n");
+	printf("============================================\n\n");
+	do {
+		found = 0;
+		printf("Please enter your Booking ID: ");
+		scanf("%s", &temp.ticketID);
 		rewind(stdin);
-		printf("\nSuccessfully booked!\n\n\n");
-		strcpy(ticket.payment, "Booked");
-		fprintf(fptr, "%s|%02d/%02d/%04d|%c|%d|%s\n", ticket.name, ticket.date.day, ticket.date.month, ticket.date.year, ticket.coach, ticket.seatNo, ticket.payment);
-	}
-	else if (paid = 2) {
-		printf("Please enter your Account No: ");
-		scanf("%d", &onlineBanking);
+		for (int i = 0; i < *numOfTicket; i++) {
+			if (strcmp(temp.ticketID, ticket[i].ticketID) == 0) {
+				found = 1;
+				printf("Booking ID: %s\n", ticket[i].ticketID);
+				printf("Total Amount: RM%.2lf\n", ticket[i].ticPrice);
+				printf("Pay by  1. Credit Card\n\t2. Online Banking\n> ");
+				scanf("%d", &paid);
+				switch (paid) {
+				case 1:
+					printf("Please enter the Total Amount (RM): ");
+					scanf("%lf", &temp.ticPrice);
+					rewind(stdin);
+					if (temp.ticPrice == ticket[i].ticPrice) {
+						printf("Please enter your Credit Card No: ");
+						scanf("%d", &creditCard);
+						rewind(stdin);
+						printf("Payment successfully! Your ticket has been Booked!\n\n");
+						strcpy(ticket[i].status, "Booked");
+					}
+					else {
+						printf("Total Amount Not Match! Please try again.\n");
+						return;
+					}
+					break;
+				case 2:
+					printf("Please enter the Total Amount (RM): ");
+					scanf("%lf", &temp.ticPrice);
+					rewind(stdin);
+					if (temp.ticPrice == ticket[i].ticPrice) {
+						printf("Please enter your Account No: ");
+						scanf("%d", &onlineBanking);
+						rewind(stdin);
+						printf("Payment successfully! Your ticket has been Booked!\n\n");
+						strcpy(ticket[i].status, "Booked");
+					}
+					else {
+						printf("Total Amount Not Match! Please try again.\n");
+						return;
+					}
+					break;
+				default:
+					printf("Invalid choice! Please try again!\n");
+				}
+
+			}
+			if (!found)
+				printf("Booking ID Not found! Please try again.\n\n");
+		}
+		printf("\nMake another Booking payment? (Y = Yes): ");
+		scanf("%c", &cont);
 		rewind(stdin);
-		printf("\nSuccessfully booked!\n\n\n");
-		strcpy(ticket.payment, "Booked");
-		fprintf(fptr, "%s|%02d/%02d/%04d|%c|%d|%s\n", ticket.name, ticket.date.day, ticket.date.month, ticket.date.year, ticket.coach, ticket.seatNo, ticket.payment);
-	}
-	else {
-		printf("Invalid payment!\nTicket NOT booked!\n\n");
-	}*/
+	} while (toupper(cont) == 'Y');
+	system("cls");
 }
 
 void exitFunction(TICKET ticket[], int* numOfTicket) {
@@ -1419,6 +1508,7 @@ void exitFunction(TICKET ticket[], int* numOfTicket) {
 	printf("======================================================\n");
 	printf("Thank You for using TICKET BOOKING. See you next time!\n");
 	printf("======================================================\n");
+	getch();
 	exit(-1);
 }
 
@@ -1965,6 +2055,9 @@ void scheduleMain() {
 		case 6: {
 			system("cls");
 			displayTrainList();
+			printf("\nPress any key to go back.");
+			getch();
+			system("cls");
 			break;
 		}
 		case 7: {
@@ -2394,9 +2487,7 @@ void displayTrainList() {
 			trains[i].trainStatus);
 		i++;
 	}
-	printf("\nPress any key to go back > ");
-	getch();
-	system("cls");
+
 	fclose(list);
 }
 
@@ -2521,18 +2612,38 @@ void flush(FILE* stream) {
 	while ((c = getc(stream)) != '\n' && c != EOF);
 }
 
+
+int readTrainFile(Train trains[]) {
+	int count = 0;
+	FILE* list;
+	Train temp;
+	if ((list = fopen("train.txt", "r")) == NULL) {
+		printf("Error opening the file...\n\n");
+		return;
+	}
+	while (fscanf(list, "%d#%[^#]#%d#%[^#]#%[^#]#%[^#]#%lf#%d#%[^\n]",
+		&temp.trainID, temp.departureStation, &temp.departurePlatform, temp.departureTime, temp.arrivalStation, temp.eta,
+		&temp.ticketPrice, &temp.availableSeats, temp.trainStatus) != EOF) {
+		trains[count] = temp;
+		count++;
+	}
+	fclose(list);
+
+	return count;
+}
+
 int readTicketFile(TICKET ticket[]) {						// Function to read ticket information from a file.
 	int count = 0;											// Counter for the number of tickets read.
 	FILE* readTF;											// File pointer for reading the ticket file.
 	TICKET temp;											// Temporary variable to hold ticket data while reading.
 	readTF = fopen("Ticket.txt", "r");						// Open the ticket file for reading.
 	if (readTF == NULL) {									// Check if the file opened successfully.
-		printf("Can't open the file ticket.txt!\n\n");
+		printf("Can't open the file Ticket.txt!\n\n");
 		exit(-1);
 	}
-	while (fscanf(readTF, "%[^|]|%[^|]|%02d/%02d/%04d|%02d:%02d|%02d/%02d/%04d|%[^|]|%[^|]|%c|%d|%[^\n]\n",
+	while (fscanf(readTF, "%[^|]|%[^|]|%02d/%02d/%04d|%02d:%02d|%02d/%02d/%04d|%[^|]|%[^|]|%[^|]|%[^|]|%c|%02d|%d|%lf|%[^\n]\n",
 		temp.ticketID, temp.name, &temp.bookDate.day, &temp.bookDate.month, &temp.bookDate.year, &temp.time.hour, &temp.time.min, &temp.departDate.day, &temp.departDate.month, &temp.departDate.year,
-		temp.departStation, temp.arrivStation, &temp.coach, &temp.seatNo, temp.status) != EOF) {		 // Read ticket information from the file until the end of file (EOF) is reached.
+		temp.departStation, temp.arrivStation, temp.departTime, temp.estimateTimeArrive, &temp.coach, &temp.seatNo, &temp.departPlatform, &temp.ticPrice, temp.status) != EOF) {		 // Read ticket information from the file until the end of file (EOF) is reached.
 		ticket[count] = temp;					// Assign the read ticket data to the corresponding element in the ticket array.
 		count++;								// Increment the ticket count.
 	}
@@ -2540,6 +2651,25 @@ int readTicketFile(TICKET ticket[]) {						// Function to read ticket informatio
 
 	return count;								 // Return the total number of tickets read from the file.
 }
+
+int readFnBFile(FNB fnb[]) {
+	int count = 0;
+	FILE* readFnBF;
+	FNB temp;
+	readFnBF = fopen("F&B.txt", "r");
+	if (readFnBF == NULL) {
+		printf("Can't open the file F&B.txt!\n\n");
+		exit(-1);
+	}
+	while (fscanf(readFnBF, "%[^|]|%lf\n", temp.fnbName, &temp.fnbPrice) != EOF) {
+		fnb[count] = temp;
+		count++;
+	}
+	fclose(readFnBF);
+	return count;
+}
+
+
 
 void clearInputBuffer() {
 	while (getchar() != '\n');
