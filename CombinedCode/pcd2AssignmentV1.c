@@ -52,12 +52,12 @@ typedef struct {
 
 #define MAX_STAFF_INFORMATION 10
 
-struct DATE {									
-	int day, month, year;						
+struct DATE {
+	int day, month, year;
 };
 
-struct Time {									
-	int hour, min;								
+struct Time {
+	int hour, min;
 };
 
 typedef struct {								 // Define a custom data type named TICKET using typedef.
@@ -72,7 +72,7 @@ typedef struct {								 // Define a custom data type named TICKET using typedef
 
 typedef struct {
 	char fnbName[30];
-	double price;
+	double fnbPrice;
 }FNB;
 
 typedef struct {
@@ -137,15 +137,16 @@ int readTicketFile(TICKET ticket[]);
 int readTrainFile(Train trains[]);
 int readFnBFile(FNB fnb[]);
 void bookingMain();
-void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem);
+void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], int* numOfTrain);
 void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem);
 void searchBooking(TICKET ticket[], int* numOfTicket);
 void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain);
 void displayBooking(TICKET ticket[], int* numOfTicket);
 void deleteBooking(TICKET ticket[], int* numOfTicket);
+void displayFnBMenu(FNB fnb[], int* numOfItem);
 double fnbFunction(FNB fnb[], int* numOfItem);
 void paymentFunction(TICKET ticket[], int* numOfTicket);
-void exitFunction(TICKET ticket[], int* numOfTicket);
+bool exitFunction(TICKET ticket[], int* numOfTicket);
 
 
 // Function Declarations: STAFF MODULE (Implementation 90%)
@@ -160,7 +161,7 @@ void duty(Staff dutyShow);
 bool applyResign();
 bool leaveFunction(Staff applyLeave);
 void searchStaff();
- 
+
 
 // Function Declarations: SCHEDULING MODULE (Implementation 100%)
 void scheduleMain();
@@ -230,7 +231,7 @@ void main() {
 		} while (toupper(abort) != 'X');
 
 		return 0;*/
-	} while (option!= 3);
+	} while (option != 3);
 }
 
 void staffMain() {
@@ -268,7 +269,6 @@ void staffMain() {
 			printf("\nInvalid option! Press any key to Retry...\n");
 			getch();
 			system("cls");
-			title();
 		}
 	}
 }
@@ -638,6 +638,7 @@ bool memberMenu(Member* current_member) {
 
 	while (backToMain == false) {
 		int memberOption = 0, profileOption = 0, offset;
+		title();
 		printf("Welcome, %s!\n\n", current_member->username);
 		printf("Choose Function.\n");
 		printf("1. View Profile Details\n");
@@ -655,7 +656,7 @@ bool memberMenu(Member* current_member) {
 			printf("Gender\t\t> %s\n", current_member->gender);
 			printf("Email\t\t> %s\n", current_member->email);
 			printf("Phone No.\t> +60%s\n", current_member->contact_No);
-			printf("Choose Action.\n");
+			printf("\nChoose Action.\n");
 			printf("1. Edit Details\n");
 			printf("2. Delete Account\n");
 			printf("3. Return to Member Interface\n\n");
@@ -873,7 +874,7 @@ void lnfReport(Member* current_member) {
 void lnfSearch() {
 	bool backToMemberMenu = false;
 	char itemType[20], itemColour[10], itemLocation[STATION];
-	
+
 
 	while (backToMemberMenu == false) {
 		int searchOption = 0;
@@ -937,7 +938,7 @@ void sortedDisplay(char* sorter) {
 			printItem = true;
 		}
 
-		if (printItem == true){
+		if (printItem == true) {
 			count++;
 			printf("%-20s | %-10s | %-50s | %-30s \n", itemBuffer.type, itemBuffer.colour, itemBuffer.location, itemBuffer.reporter);
 		}
@@ -957,13 +958,13 @@ void bookingMain() {
 	int numOfTicket = readTicketFile(ticket);				// Call the readTicketFile function to read ticket information from a file. Store the number of tickets read into numOfTicket.
 	FNB fnb[10];
 	int numOfItem = readFnBFile(fnb);
-	functionsChoosen(ticket, &numOfTicket, fnb, &numOfItem, trains, &numOfTrain);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
+	bookingMenu(ticket, &numOfTicket, fnb, &numOfItem, trains, &numOfTrain);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
 }
 
-void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem) {				// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
+void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], int* numOfTrain) {				// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
 	system("cls");
 	int choice;
-
+	bool returnToMember = false;
 	do {
 		printf("============================================\n");
 		printf("\t      TICKET BOOKING\n");
@@ -985,10 +986,10 @@ void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem) {
 		case 4: deleteBooking(ticket, numOfTicket); break;
 		case 5: displayBooking(ticket, numOfTicket); break;
 		case 6: paymentFunction(ticket, numOfTicket); break;
-		case 7: exitFunction(ticket, numOfTicket); break;
+		case 7: returnToMember = exitFunction(ticket, numOfTicket); break;
 		default: printf("Invalid choice! Please key in again.\n\n");
 		};
-	} while (choice != 7);					// Continue the loop until the user key in number 8 to exit.
+	} while (returnToMember == false);
 }
 
 void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem) {  //void addBooking(FILE *ticketFile)
@@ -1396,6 +1397,15 @@ void deleteBooking(TICKET ticket[], int* numOfTicket) {
 	system("cls");
 }
 
+void displayFnBMenu(FNB fnb[], int* numOfItem) {
+	printf("============================================\n");
+	printf("\t      F&B MENU\n");
+	printf("============================================\n\n");
+	for (int i = 0; i < *numOfItem; i++) {
+		printf("%d. %s - RM%.2lf\n", i + 1, fnb[i].fnbName, fnb[i].fnbPrice);
+	}
+}
+
 double fnbFunction(FNB fnb[], int* numOfItem) {
 	int choice, quantity;
 	double fnbTotal = 0.0;
@@ -1491,7 +1501,7 @@ void paymentFunction(TICKET ticket[], int* numOfTicket) {
 	system("cls");
 }
 
-void exitFunction(TICKET ticket[], int* numOfTicket) {
+bool exitFunction(TICKET ticket[], int* numOfTicket) {
 	system("cls");
 	FILE* ticketFile;
 	ticketFile = fopen("Ticket.txt", "w");
@@ -1506,10 +1516,11 @@ void exitFunction(TICKET ticket[], int* numOfTicket) {
 	}
 	fclose(ticketFile);
 	printf("======================================================\n");
-	printf("Thank You for using TICKET BOOKING. See you next time!\n");
+	printf("Thank You for using TICKET BOOKING! Press any key.....\n");
 	printf("======================================================\n");
 	getch();
-	exit(-1);
+	system("cls");
+	return true;
 }
 
 
@@ -1517,7 +1528,7 @@ void exitFunction(TICKET ticket[], int* numOfTicket) {
 // Post-Login Display and Functions: STAFF MODULE
 void staffMenu(Staff* staffInformation) {
 	int selectF;
-	bool returnToMain= false;
+	bool returnToMain = false;
 
 	while (returnToMain == false) {
 		system("cls");
@@ -1537,10 +1548,10 @@ void staffMenu(Staff* staffInformation) {
 			case 1:
 				returnToMain = staffModify();
 				break;
-			case 2: 
+			case 2:
 				duty(*staffInformation);
 				break;
-			case 3:		
+			case 3:
 				signUp();
 				break;
 			case 4:		// Combine: zw function
