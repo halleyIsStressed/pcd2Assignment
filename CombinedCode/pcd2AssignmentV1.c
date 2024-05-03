@@ -652,7 +652,7 @@ bool memberMenu(Member* current_member) {
 		printf("Choose Function.\n");
 		printf("1. View Profile Details\n");
 		printf("2. Display Train Schedule List\n");
-		printf("3. Book a Train Ticket\n");					// Combine: zy part
+		printf("3. Book a Train Ticket\n");
 		printf("4. Lost and Found\n");
 		printf("5. Logout\n\n");
 		printf(">>>>> ");
@@ -2144,6 +2144,8 @@ void scheduleMain() {
 		case 6: {
 			system("cls");
 			displayTrainList();
+			printf("\nPress any key to return.");
+			getch();
 			break;
 		}
 		case 7: {
@@ -2620,9 +2622,6 @@ void displayTrainList() {
 			trains[i].trainStatus);
 		i++;
 	}
-	printf("\nPress any key to go back > ");
-	getch();
-	system("cls");
 	fclose(list);
 }
 
