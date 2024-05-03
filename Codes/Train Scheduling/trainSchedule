@@ -42,48 +42,57 @@ void addTrain() {
 	//Prompt user to add a new record
 	printf("Add A Train Record\n");
 	printf("==================\n");
-	printf("Add a new train record (Y = Yes)? > ");
+	printf("Add a new train record (Y = Yes) (N = No)? > ");
 	rewind(stdin);
 	scanf("%c", &selection);
 	printf("\n");
-	while (toupper(selection) == 'Y') {
-		printf("Enter the Time following the format.\n");
-		printf("(Hours:Minutes) (24H Format)\n");
-		printf("\n");
-		printf("Train ID			: ");
-		scanf("%d", &train.trainID);
-		printf("Departure Station		: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.departureStation);
-		printf("Departure Platform		: ");
-		scanf("%d", &train.departurePlatform);
-		printf("Departure Time			: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.departureTime);
-		printf("Arrival Station			: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.arrivalStation);
-		printf("Estimated Arrival Time		: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.eta);
-		printf("Ticket Price			: ");
-		scanf("%lf", &train.ticketPrice);
-		printf("Available Seats			: ");
-		scanf("%d", &train.availableSeats);
-		printf("Train Status			: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.trainStatus);
-		printf("\n");
-		//write train record to the file
-		fprintf(add, "%d#%s#%d#%s#%s#%s#%lf#%d#%s\n",
-			train.trainID, train.departureStation, train.departurePlatform, train.departureTime, train.arrivalStation, train.eta,
-			train.ticketPrice, train.availableSeats, train.trainStatus);
-		printf("Record successfully added...\n\n");
-		count++;
-		printf("Add another record (Y = Yes) (N = No) ? ");
-		rewind(stdin);
-		scanf("%c", &selection);
+	if (toupper(selection) == 'Y') {
+		do {
+			printf("Enter the Time following the format.\n");
+			printf("(Hours:Minutes) (24H Format)\n\n");
+			printf("Train ID               : ");
+			scanf("%d", &train.trainID);
+			printf("Departure Station      : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.departureStation);
+			printf("Departure Platform     : ");
+			scanf("%d", &train.departurePlatform);
+			printf("Departure Time         : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.departureTime);
+			printf("Arrival Station        : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.arrivalStation);
+			printf("Estimated Arrival Time : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.eta);
+			printf("Ticket Price           : ");
+			scanf("%lf", &train.ticketPrice);
+			printf("Available Seats        : ");
+			scanf("%d", &train.availableSeats);
+			printf("Train Status           : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.trainStatus);
+			printf("\n");
+
+			// write train record to the file
+			fprintf(add, "%d#%s#%d#%s#%s#%s#%lf#%d#%s\n",
+				train.trainID, train.departureStation, train.departurePlatform, train.departureTime, train.arrivalStation, train.eta,
+				train.ticketPrice, train.availableSeats, train.trainStatus);
+			printf("Record successfully added...\n\n");
+			count++;
+
+			printf("Add another record (Y = Yes) (N = No) ? ");
+			rewind(stdin);
+			scanf(" %c", &selection);
+			system("cls");
+		} while (toupper(selection) == 'Y');
+	}
+
+	else {
 		system("cls");
+		printf("Returning back to main menu.\n");
+		return;
 	}
 	printf("\n");
 	printf("%d Records have been added\n\n", count);
@@ -95,7 +104,7 @@ void modifyTrain() {
 	FILE* modify;
 	Train trains[TRAINS];
 	int i = 0, count = 0, modifyId, found = 0, choice, newPlatform, newSeats;
-	char confirm, newDptStation[STATION], newTime[TIME], newArrStation[STATION], newEta[TIME], newStatus[STATUS];
+	char confirm, selection = 'Y', newDptStation[STATION], newTime[TIME], newArrStation[STATION], newEta[TIME], newStatus[STATUS];
 	double newPrice;
 
 	if ((modify = fopen("train.txt", "r")) == NULL) {
@@ -111,112 +120,124 @@ void modifyTrain() {
 	}
 	count = i;
 	fclose(modify);
-	//prompt user to choose train to modify
+	//prompt user to choose train to modify 
 	printf("Modify A Train Record\n");
 	printf("=====================\n");
-	printf("Enter the Train ID of the train you want to modify: ");
+	printf("Add a new train record (Y = Yes) (N = No)? > ");
 	rewind(stdin);
-	scanf("%d", &modifyId);
+	scanf("%c", &selection);
 
-	for (i = 0; i < count; i++) {
-		if (trains[i].trainID == modifyId) {
-			printf("\nSelect the field you want to modify:\n");
-			printf("1. Departure Station\n");
-			printf("2. Departure Platform\n");
-			printf("3. Departure Time\n");
-			printf("4. Arrival Station\n");
-			printf("5. Estimated Arrival Time\n");
-			printf("6. Ticket Price\n");
-			printf("7. Available Seats\n");
-			printf("8. Train Status\n");
-			printf("\nEnter your choice: ");
-			scanf("%d", &choice);
+	if (toupper(selection) == 'Y') {
+		printf("\nEnter the Train ID of the train you want to modify: ");
+		rewind(stdin);
+		scanf("%d", &modifyId);
 
-			switch (choice) {
-			case 1:
-				printf("\nEnter the new departure station: ");
-				rewind(stdin);
-				scanf("%[^\n]", newDptStation);
-				break;
-			case 2:
-				printf("\nEnter the new departure platform: ");
-				scanf("%d", &newPlatform);
-				break;
-			case 3:
-				printf("\nEnter the new departure time: ");
-				rewind(stdin);
-				scanf("%[^\n]", newTime);
-				break;
-			case 4:
-				printf("\nEnter the new arrival station: ");
-				rewind(stdin);
-				scanf("%[^\n]", newArrStation);
-				break;
-			case 5:
-				printf("\nEnter the new estimated arrival time: ");
-				rewind(stdin);
-				scanf("%[^\n]", newEta);
-				break;
-			case 6:
-				printf("\nEnter the new ticket price: ");
-				scanf("%lf", &newPrice);
-				break;
-			case 7:
-				printf("\nEnter the new number of available seats: ");
-				scanf("%d", &newSeats);
-				break;
-			case 8:
-				printf("\nEnter the new train status: ");
-				rewind(stdin);
-				scanf("%[^\n]", newStatus);
-				break;
-			default:
-				printf("\nInvalid choice.No changes made.\n");
-				return;
-			}
+		for (i = 0; i < count; i++) {
+			if (trains[i].trainID == modifyId) {
+				printf("\nSelect the field you want to modify:\n");
+				printf("1. Departure Station\n");
+				printf("2. Departure Platform\n");
+				printf("3. Departure Time\n");
+				printf("4. Arrival Station\n");
+				printf("5. Estimated Arrival Time\n");
+				printf("6. Ticket Price\n");
+				printf("7. Available Seats\n");
+				printf("8. Train Status\n");
+				printf("\nEnter your choice: ");
+				scanf("%d", &choice);
 
-			printf("\nConfirm to modify the new data ? (Y=YES)|(N=NO) > ");
-			rewind(stdin);
-			scanf(" %c", &confirm);
-			rewind(stdin);
-			//copy new data and replace old data
-			if (toupper(confirm) == 'Y') {
-				if (choice == 1) {
-					strcpy(trains[i].departureStation, newDptStation);
+				switch (choice) {
+				case 1:
+					printf("\nEnter the new departure station: ");
+					rewind(stdin);
+					scanf("%[^\n]", newDptStation);
+					break;
+				case 2:
+					printf("\nEnter the new departure platform: ");
+					scanf("%d", &newPlatform);
+					break;
+				case 3:
+					printf("\nEnter the new departure time: ");
+					rewind(stdin);
+					scanf("%[^\n]", newTime);
+					break;
+				case 4:
+					printf("\nEnter the new arrival station: ");
+					rewind(stdin);
+					scanf("%[^\n]", newArrStation);
+					break;
+				case 5:
+					printf("\nEnter the new estimated arrival time: ");
+					rewind(stdin);
+					scanf("%[^\n]", newEta);
+					break;
+				case 6:
+					printf("\nEnter the new ticket price: ");
+					scanf("%lf", &newPrice);
+					break;
+				case 7:
+					printf("\nEnter the new number of available seats: ");
+					scanf("%d", &newSeats);
+					break;
+				case 8:
+					printf("\nEnter the new train status: ");
+					rewind(stdin);
+					scanf("%[^\n]", newStatus);
+					break;
+				default:
+					printf("\nInvalid choice.No changes made.\n");
+					return;
 				}
-				else if (choice == 2) {
-					trains[i].departurePlatform = newPlatform;
+
+				printf("\nConfirm to modify the new data ? (Y=YES)|(N=NO) > ");
+				rewind(stdin);
+				scanf(" %c", &confirm);
+				rewind(stdin);
+				//copy new data and replace old data
+				if (toupper(confirm) == 'Y') {
+					if (choice == 1) {
+						strcpy(trains[i].departureStation, newDptStation);
+					}
+					else if (choice == 2) {
+						trains[i].departurePlatform = newPlatform;
+					}
+					else if (choice == 3) {
+						strcpy(trains[i].departureTime, newTime);
+					}
+					else if (choice == 4) {
+						strcpy(trains[i].arrivalStation, newArrStation);
+					}
+					else if (choice == 5) {
+						strcpy(trains[i].eta, newEta);
+					}
+					else if (choice == 6) {
+						trains[i].ticketPrice = newPrice;
+					}
+					else if (choice == 7) {
+						trains[i].availableSeats = newSeats;
+					}
+					else if (choice == 8) {
+						strcpy(trains[i].trainStatus, newStatus);
+					}
+					printf("Data updated successfully.\n");
 				}
-				else if (choice == 3) {
-					strcpy(trains[i].departureTime, newTime);
+				else {
+					system("cls");
+					printf("Update canceled.\n");
+					printf("\nPress any key to go back > ");
+					getch();
+					return;
 				}
-				else if (choice == 4) {
-					strcpy(trains[i].arrivalStation, newArrStation);
-				}
-				else if (choice == 5) {
-					strcpy(trains[i].eta, newEta);
-				}
-				else if (choice == 6) {
-					trains[i].ticketPrice = newPrice;
-				}
-				else if (choice == 7) {
-					trains[i].availableSeats = newSeats;
-				}
-				else if (choice == 8) {
-					strcpy(trains[i].trainStatus, newStatus);
-				}
-				printf("Data updated successfully.\n");
+				found = 1;
+				break;
 			}
-			else {
-				system("cls");
-				printf("Update canceled.\n"); 
-				printf("\nPress any key to go back > ");
-				getch();
-				return;
-			}
-			found = 1;
-			break;
 		}
+	}
+
+	else {
+		system("cls");
+		printf("Returning back to main menu.\n");
+		return;
 	}
 
 	if (!found) {
@@ -265,6 +286,7 @@ void addMainFeed() {
 	Train trains[TRAINS];
 	MainFeed mainfeed[TRAINS];
 	int i = 0, count = 0, chosenTrain;
+	char selection = 'Y';
 
 	if ((readList = fopen("train.txt", "r")) == NULL) {
 		printf("Error opening the file...\n\n");
@@ -282,33 +304,43 @@ void addMainFeed() {
 	//add feedback & maintenance data
 	printf("Add Train Feedback & Maintenance\n");
 	printf("================================\n");
-	printf("Select the train you want to add to: ");
-	scanf("%d", &chosenTrain);
+	printf("Add a new train feedback & maintenance (Y = Yes) (N = No)? > ");
+	rewind(stdin);
+	scanf("%c", &selection);
+	if (toupper(selection) == 'Y') {
+		printf("\nSelect the train you want to add to: ");
+		scanf("%d", &chosenTrain);
+		for (int j = 0; j < i; j++) {
+			if (chosenTrain == trains[j].trainID) {
+				printf("\nAdd details for Train %d\n", trains[j].trainID);
+				printf("==============================\n");
+				printf("Add Feedback: ");
+				rewind(stdin);
+				scanf("%[^\n]", mainfeed[j].feedback);
+				printf("\nAdd Maintenance: ");
+				rewind(stdin);
+				scanf("%[^\n]", mainfeed[j].maintenance);
+				printf("\n");
 
-	for (int j = 0; j < i; j++) {
-		if (chosenTrain == trains[j].trainID) {
-			printf("\nAdd details for Train %d\n", trains[j].trainID);
-			printf("==============================\n");
-			printf("Add Feedback: ");
-			rewind(stdin);
-			scanf("%[^\n]", mainfeed[j].feedback);
-			printf("\nAdd Maintenance: ");
-			rewind(stdin);
-			scanf("%[^\n]", mainfeed[j].maintenance);
-			printf("\n");
+				if ((writeList = fopen("staffPurpose.txt", "a")) == NULL) {
+					printf("Error opening the file...\n\n");
+					return;
+				}
 
-			if ((writeList = fopen("staffPurpose.txt", "a")) == NULL) {
-				printf("Error opening the file...\n\n");
-				return;
+				fprintf(writeList, "%d#%s#%s\n",
+					trains[j].trainID, mainfeed[j].feedback, mainfeed[j].maintenance);
+				printf("Feedback & Maintenance successfully added...\n\n");
+				count++;
+				fclose(writeList);
+				break;
 			}
-
-			fprintf(writeList, "%d#%s#%s\n",
-				trains[j].trainID, mainfeed[j].feedback, mainfeed[j].maintenance);
-			printf("Feedback & Maintenance successfully added...\n\n");
-			count++;
-			fclose(writeList);
-			break;
 		}
+	}
+
+	else {
+		system("cls");
+		printf("Returning back to main menu.\n");
+		return;
 	}
 
 	if (count == 0) {
@@ -361,7 +393,7 @@ void displayMainFeed() {
 void searchTrain() {
 	FILE* search;
 	int i = 0, count = 0, searchTrain;
-	char cont;
+	char cont, selection='Y';
 	Train trains[TRAINS];
 
 	if ((search = fopen("train.txt", "r")) == NULL) {
@@ -380,27 +412,38 @@ void searchTrain() {
 	do {
 		printf("Search A Train Record\n");
 		printf("=====================\n");
-		printf("Train ID(s) : ");
-		scanf("%d", &searchTrain);
-		printf("=====================\n\n");
-		printf("%-10s | %-20s | %-18s | %-14s | %-16s | %-6s | %-13s | %-16s | %s\n",
-			"Train ID", "Departure Station", "Departure Platform", "Departure Time",
-			"Arrival Station", "ETA", "Ticket Price", "Available Seats", "Train Status");
-		printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+		printf("Add a new train feedback & maintenance (Y = Yes) (N = No)? > ");
+		rewind(stdin);
+		scanf("%c", &selection);
 
-		for (int i = 0; i < TRAINS; i++) {
-			if (searchTrain == trains[i].trainID) {
-				printf("%-10d | %-20s | %-18d | %-14s | %-16s | %-6s | %-13.2lf | %-16d | %s\n\n",
-					trains[i].trainID, trains[i].departureStation, trains[i].departurePlatform,
-					trains[i].departureTime, trains[i].arrivalStation, trains[i].eta,
-					trains[i].ticketPrice, trains[i].availableSeats, trains[i].trainStatus);
+		if (toupper(selection) == 'Y') {
+			printf("Train ID(s) : ");
+			scanf("%d", &searchTrain);
+			printf("=====================\n\n");
+			printf("%-10s | %-20s | %-18s | %-14s | %-16s | %-6s | %-13s | %-16s | %s\n",
+				"Train ID", "Departure Station", "Departure Platform", "Departure Time",
+				"Arrival Station", "ETA", "Ticket Price", "Available Seats", "Train Status");
+			printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+			for (int i = 0; i < TRAINS; i++) {
+				if (searchTrain == trains[i].trainID) {
+					printf("%-10d | %-20s | %-18d | %-14s | %-16s | %-6s | %-13.2lf | %-16d | %s\n\n",
+						trains[i].trainID, trains[i].departureStation, trains[i].departurePlatform,
+						trains[i].departureTime, trains[i].arrivalStation, trains[i].eta,
+						trains[i].ticketPrice, trains[i].availableSeats, trains[i].trainStatus);
+				}
 			}
+			printf("\nSearch another (Y = yes)? ");
+			rewind(stdin);
+			scanf(" %c", &cont);
+			system("cls");
 		}
 
-		printf("\nSearch another (Y = yes)? ");
-		rewind(stdin);
-		scanf(" %c", &cont);
-		system("cls");
+		else {
+			system("cls");
+			printf("Returning back to main menu.\n");
+			return;
+		}
 	} while (toupper(cont) == 'Y');
 
 	printf("Press any key to go back > ");
