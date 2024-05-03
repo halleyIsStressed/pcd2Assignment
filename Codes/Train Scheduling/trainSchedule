@@ -417,7 +417,7 @@ void searchTrain() {
 		scanf("%c", &selection);
 
 		if (toupper(selection) == 'Y') {
-			printf("Train ID(s) : ");
+			printf("\nTrain ID(s) : ");
 			scanf("%d", &searchTrain);
 			printf("=====================\n\n");
 			printf("%-10s | %-20s | %-18s | %-14s | %-16s | %-6s | %-13s | %-16s | %s\n",
@@ -473,7 +473,8 @@ void displayTrainList() {
 		"Ticket Price",
 		"Available Seats",
 		"Train Status");
-	printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("-----------+----------------------+--------------------+----------------+------------------+--------+---------------+------------------+--------------\n");
+
 
 	//read data from text file and print out
 	while (fscanf(list, "%d#%[^#]#%d#%[^#]#%[^#]#%[^#]#%lf#%d#%[^\n]",
