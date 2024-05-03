@@ -20,6 +20,8 @@
 #define POS_SIZE 20
 #define ID_SIZE 6
 
+#define MAX_STAFF_INFORMATION 10
+
 typedef struct {
 	char ic[IC_SIZE], username[USERNAME_SIZE], password[PASSWORD_SIZE],
 		email[EMAIL_SIZE], gender[GENDER_SIZE], contact_No[CONTACT_SIZE];
@@ -50,8 +52,6 @@ typedef struct {
 #define FEEDBACK 100
 #define MAINTENANCE 100
 
-#define MAX_STAFF_INFORMATION 10
-
 struct DATE {
 	int day, month, year;
 };
@@ -68,7 +68,6 @@ typedef struct {								 // Define a custom data type named TICKET using typedef
 	int seatNo, departPlatform;
 	double amount, ticPrice;
 }TICKET;
-
 
 typedef struct {
 	char fnbName[30];
@@ -103,7 +102,7 @@ struct upload_status {
 
 // Password recovery function: Defining Format
 #define FROM_MAIL "lee.lapyhin0127@gmail.com"	// This is the email we will be using for the password recovery function.
-#define APP_PASSWORD ""							// This is the App Password for the email above. Will be empty in github and during code inspection.
+#define APP_PASSWORD "xqhp ccru spzc ttxo"							// This is the App Password for the email above. Will be empty in github and during code inspection.
 #define PAYLOAD_TEXT                                                 \
         "From: <" FROM_MAIL ">\r\n"                                  \
         "To: <%s>\r\n"                                               \
@@ -198,7 +197,7 @@ void main() {
 		printf("Are you a Staff or a Member?\n");
 		printf("1. Staff\n");
 		printf("2. Member\n");
-		printf("3. Fuck off\n\n");
+		printf("3. Leave\n\n");
 		printf(">>>>> ");
 		scanf("%d", &option);
 		clearInputBuffer();
@@ -303,7 +302,6 @@ void userMain() {										// Main Menu. Branches off into Login, Sign Up, Passw
 			break;
 		case 3:
 			if (passwordRec(&current_member) == true) {	// Password Recovery function. Runs login() if success (not implemented yet)
-				printf("\n\nWelcome, %s!\n", current_member.username);
 				memberMenu(&current_member);
 			}
 			break;
@@ -600,6 +598,7 @@ bool passwordRec(Member* place_to_put_member) {
 	system("cls");
 
 	title();
+	flush(stdin);
 	stringInput("\nEnter your username > ", loginName, USERNAME_SIZE);
 	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {
 		if (strcmp(memberBuffer.username, loginName) == 0) {
@@ -613,21 +612,27 @@ bool passwordRec(Member* place_to_put_member) {
 				flush(stdin);
 				if (codeAns == code) {
 					*place_to_put_member = memberBuffer;
+					system("cls");
+					printf("Login Successful!\n");
 					fclose(fMem);
 					return true;
 				}
 				else {
 					printf("\n\nCode Missmatch! Returning to Main Menu...");
+					getch();
+					system("cls");
+					back = true;
 				}
 			}
 			break;
-		} // else {Do nothing.}
+		}
 	}
 	fclose(fMem);
 	if (back == false) {
 		printf("Username Not Found! Press any key to return to Main Menu...");
 		getch();
 		system("cls");
+		return false;
 	}
 }
 
