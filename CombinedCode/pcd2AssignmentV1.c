@@ -45,12 +45,12 @@ typedef struct {
 }Staff;
 
 // Defining size for train structure
-#define TRAINS 10
-#define STATION 50
-#define TIME 10
-#define STATUS 20
-#define FEEDBACK 100
-#define MAINTENANCE 100
+#define TRAINS_SIZE 10
+#define STATION_SIZE 50
+#define TIME_SIZE 10
+#define STATUS_SIZE 20
+#define FEEDBACK_SIZE 100
+#define MAINTENANCE_SIZE 100
 
 struct DATE {	// This struct represents a date with day, month, and year components.
 	int day, month, year;	// Holds the day, month, year component of the date.
@@ -76,23 +76,23 @@ typedef struct {	// Definition of a structure representing a food and beverage i
 
 typedef struct {
 	int trainID;
-	char departureStation[STATION];
+	char departureStation[STATION_SIZE];
 	int departurePlatform;
-	char departureTime[TIME];
-	char arrivalStation[STATION];
-	char eta[TIME];
+	char departureTime[TIME_SIZE];
+	char arrivalStation[STATION_SIZE];
+	char eta[TIME_SIZE];
 	double ticketPrice;
 	int availableSeats;
-	char trainStatus[STATUS];
+	char trainStatus[STATUS_SIZE];
 }Train;
 
 typedef struct {
-	char maintenance[MAINTENANCE];
-	char feedback[FEEDBACK];
+	char maintenance[MAINTENANCE_SIZE];
+	char feedback[FEEDBACK_SIZE];
 }MainFeed;
 
 typedef struct {
-	char reporter[USERNAME_SIZE], type[20], colour[10], location[STATION];
+	char reporter[USERNAME_SIZE], type[20], colour[10], location[STATION_SIZE];
 }LostItem;
 
 struct upload_status {
@@ -906,7 +906,7 @@ void lnfReport(Member* current_member) {
 	int loopa = 1;
 	stringInput("\nEnter the type of the item (Phone, Bottle, etc) > ", &item.type, 20);
 	stringInput("Enter the colour of the item (Blue, White, etc) > ", &item.colour, 10);
-	stringInput("Enter the station which this item was lost      > ", &item.location, STATION);
+	stringInput("Enter the station which this item was lost      > ", &item.location, STATION_SIZE);
 
 	fwrite(&item, sizeof(item), 1, fLost);
 	printf("\nReport Uploaded! Press any key to return...\n");
@@ -917,7 +917,7 @@ void lnfReport(Member* current_member) {
 
 void lnfSearch() {
 	bool backToMemberMenu = false;
-	char itemType[20], itemColour[10], itemLocation[STATION];
+	char itemType[20], itemColour[10], itemLocation[STATION_SIZE];
 
 	while (backToMemberMenu == false) {
 		int searchOption = 0;
@@ -941,7 +941,7 @@ void lnfSearch() {
 			lnfDisplaySort(itemColour);
 			break;
 		case 3:
-			stringInput("\nEnter the station which this item was lost      > ", &itemLocation, STATION);
+			stringInput("\nEnter the station which this item was lost      > ", &itemLocation, STATION_SIZE);
 			lnfDisplaySort(itemLocation);
 			break;
 		case 4:
@@ -1000,7 +1000,7 @@ void lnfDisplaySort(char* sorter) {
 // Member Module Branch: BOOKING MODULE
 void bookingMain() {
 	system("cls");	// Clear the console screen.
-	Train trains[TRAINS];
+	Train trains[TRAINS_SIZE];
 	int numOfTrain = readTrainFile(trains);
 	TICKET ticket[100];	// Declare an array of TICKET structs to store ticket information.
 	int numOfTicket = readTicketFile(ticket);	// Call the readTicketFile function to read ticket information from a file. Store the number of tickets read into numOfTicket.
@@ -1643,7 +1643,7 @@ void staffMenu(Staff* staffInformation) {
 			case 3:
 				signUp();
 				break;
-			case 4:	
+			case 4:
 				system("cls");
 				scheduleMain();
 				break;
@@ -1759,14 +1759,16 @@ bool staffModify() {
 
 						break;
 					}
-					case 2: { printf("Your current Address is %s\n", modify[i].information.address);
+					case 2: {
+						printf("Your current Address is %s\n", modify[i].information.address);
 						printf("Enter your new data >> ");
 						rewind(stdin);
 						scanf("%[^\n]", &addressNew);
 
 						break;
 					}
-					case 3: {printf("Your current Phone Number  is %s\n", modify[i].information.phoneNumber);
+					case 3: {
+						printf("Your current Phone Number  is %s\n", modify[i].information.phoneNumber);
 						printf("Enter your new data >> +60");
 						rewind(stdin);
 						scanf("%[^\n]", &phoneNumberNew);
@@ -1822,7 +1824,7 @@ bool staffModify() {
 		}
 		if (!found)
 		{
-			printf("Password Mismatch!\n"); 			
+			printf("Password Mismatch!\n");
 			printf("Would you like to try again? (Y = yes)");
 			rewind(stdin);
 			scanf("%c", &add);
@@ -2131,6 +2133,7 @@ void searchStaff() {
 void scheduleMain() {
 	//prompt user to choose a module
 	int choice;
+	Train train;
 	do {
 		system("cls");
 		printf("\n TRAIN SCHEDULING\n\n");
@@ -2148,17 +2151,17 @@ void scheduleMain() {
 		switch (choice) {
 		case 1: {
 			system("cls");
-			addTrain();
+			addTrain(&train);
 			break;
 		}
 		case 2: {
 			system("cls");
-			modifyTrain();
+			modifyTrain(&train);
 			break;
 		}
 		case 3: {
 			system("cls");
-			addMainFeed();
+			addMainFeed(&train);
 			break;
 		}
 		case 4: {
@@ -2174,12 +2177,9 @@ void scheduleMain() {
 		case 6: {
 			system("cls");
 			displayTrainList();
-			printf("\nPress any key to return.");
-			getch();
 			break;
 		}
 		case 7: {
-			printf("Exiting menu...\n\n");
 			break;
 		}
 		default:
@@ -2189,11 +2189,10 @@ void scheduleMain() {
 	system("pause");
 }
 
-void addTrain() {
+void addTrain(Train* train) {
 	FILE* add;
 	char selection = 'Y';
-	Train train;
-	int i = 0, count = 0;
+	int count = 0;
 
 	if ((add = fopen("train.txt", "a")) == NULL) {
 		printf("Error opening the file...\n\n");
@@ -2211,34 +2210,34 @@ void addTrain() {
 			printf("Enter the Time following the format.\n");
 			printf("(Hours:Minutes) (24H Format)\n\n");
 			printf("Train ID               : ");
-			scanf("%d", &train.trainID);
+			scanf("%d", &train->trainID);
 			printf("Departure Station      : ");
 			rewind(stdin);
-			scanf("%[^\n]", train.departureStation);
+			scanf("%[^\n]", train->departureStation);
 			printf("Departure Platform     : ");
-			scanf("%d", &train.departurePlatform);
+			scanf("%d", &train->departurePlatform);
 			printf("Departure Time         : ");
 			rewind(stdin);
-			scanf("%[^\n]", train.departureTime);
+			scanf("%[^\n]", train->departureTime);
 			printf("Arrival Station        : ");
 			rewind(stdin);
-			scanf("%[^\n]", train.arrivalStation);
+			scanf("%[^\n]", train->arrivalStation);
 			printf("Estimated Arrival Time : ");
 			rewind(stdin);
-			scanf("%[^\n]", train.eta);
+			scanf("%[^\n]", train->eta);
 			printf("Ticket Price           : ");
-			scanf("%lf", &train.ticketPrice);
+			scanf("%lf", &train->ticketPrice);
 			printf("Available Seats        : ");
-			scanf("%d", &train.availableSeats);
+			scanf("%d", &train->availableSeats);
 			printf("Train Status           : ");
 			rewind(stdin);
-			scanf("%[^\n]", train.trainStatus);
+			scanf("%[^\n]", train->trainStatus);
 			printf("\n");
 
 			// write train record to the file
-			fprintf(add, "%d#%s#%d#%s#%s#%s#%lf#%d#%s\n",
-				train.trainID, train.departureStation, train.departurePlatform, train.departureTime, train.arrivalStation, train.eta,
-				train.ticketPrice, train.availableSeats, train.trainStatus);
+			fprintf(add, "%d#%s#%d#%s#%s#%s#%.2lf#%d#%s\n",
+				train->trainID, train->departureStation, train->departurePlatform, train->departureTime, train->arrivalStation, train->eta,
+				train->ticketPrice, train->availableSeats, train->trainStatus);
 			printf("Record successfully added...\n\n");
 			count++;
 
@@ -2248,7 +2247,6 @@ void addTrain() {
 			system("cls");
 		} while (toupper(selection) == 'Y');
 	}
-
 	else {
 		system("cls");
 		printf("Returning back to main menu.\n");
@@ -2260,11 +2258,10 @@ void addTrain() {
 	system("cls");
 }
 
-void modifyTrain() {
+void modifyTrain(Train* trains) {
 	FILE* modify;
-	Train trains[TRAINS];
 	int i = 0, count = 0, modifyId, found = 0, choice, newPlatform, newSeats;
-	char confirm, selection = 'Y', newDptStation[STATION], newTime[TIME], newArrStation[STATION], newEta[TIME], newStatus[STATUS];
+	char confirm, selection = 'Y', newDptStation[STATION_SIZE], newTime[TIME_SIZE], newArrStation[STATION_SIZE], newEta[TIME_SIZE], newStatus[STATUS_SIZE];
 	double newPrice;
 
 	if ((modify = fopen("train.txt", "r")) == NULL) {
@@ -2393,7 +2390,6 @@ void modifyTrain() {
 			}
 		}
 	}
-
 	else {
 		system("cls");
 		printf("Returning back to main menu.\n");
@@ -2440,11 +2436,10 @@ void modifyTrain() {
 	system("cls");
 }
 
-void addMainFeed() {
+void addMainFeed(Train* trains) {
 	FILE* readList;
 	FILE* writeList;
-	Train trains[TRAINS];
-	MainFeed mainfeed[TRAINS];
+	MainFeed mainfeed[TRAINS_SIZE];
 	int i = 0, count = 0, chosenTrain;
 	char selection = 'Y';
 
@@ -2516,8 +2511,8 @@ void addMainFeed() {
 
 void displayMainFeed() {
 	FILE* list;
-	Train trains[TRAINS];
-	MainFeed mainfeed[TRAINS];
+	Train trains[TRAINS_SIZE];
+	MainFeed mainfeed[TRAINS_SIZE];
 	int i = 0;
 
 	if ((list = fopen("staffPurpose.txt", "r")) == NULL) {
@@ -2554,7 +2549,7 @@ void searchTrain() {
 	FILE* search;
 	int i = 0, count = 0, searchTrain;
 	char cont, selection = 'Y';
-	Train trains[TRAINS];
+	Train trains[TRAINS_SIZE];
 
 	if ((search = fopen("train.txt", "r")) == NULL) {
 		printf("Error opening the file...\n\n");
@@ -2585,7 +2580,7 @@ void searchTrain() {
 				"Arrival Station", "ETA", "Ticket Price", "Available Seats", "Train Status");
 			printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
 
-			for (int i = 0; i < TRAINS; i++) {
+			for (int i = 0; i < TRAINS_SIZE; i++) {
 				if (searchTrain == trains[i].trainID) {
 					printf("%-10d | %-20s | %-18d | %-14s | %-16s | %-6s | %-13.2lf | %-16d | %s\n\n",
 						trains[i].trainID, trains[i].departureStation, trains[i].departurePlatform,
@@ -2613,7 +2608,7 @@ void searchTrain() {
 
 void displayTrainList() {
 	FILE* list;
-	Train trains[TRAINS];
+	Train trains[TRAINS_SIZE];
 	int i = 0;
 
 	if ((list = fopen("train.txt", "r")) == NULL) {
@@ -2654,7 +2649,6 @@ void displayTrainList() {
 	}
 	fclose(list);
 }
-
 
 
 // Non-Display Functions
@@ -2841,7 +2835,7 @@ void clearInputBuffer() {
 }
 
 
- // Decorative Functions
+// Decorative Functions
 
 void decorationFlower() {
 	printf("%s", "*");
