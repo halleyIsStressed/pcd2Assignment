@@ -13,8 +13,8 @@
 #define IC_SIZE 13
 #define USERNAME_SIZE 30
 #define PASSWORD_SIZE 50
+#define GENDER_SIZE 1
 #define EMAIL_SIZE 254
-#define GENDER_SIZE 2
 #define CONTACT_SIZE 12
 #define ADDR_SIZE 50
 #define POS_SIZE 20
@@ -24,7 +24,7 @@
 
 typedef struct {
 	char ic[IC_SIZE], username[USERNAME_SIZE], password[PASSWORD_SIZE],
-		email[EMAIL_SIZE], gender[GENDER_SIZE], contact_No[CONTACT_SIZE];
+		email[EMAIL_SIZE], gender, contact_No[CONTACT_SIZE];
 }Member;
 
 struct StaffInformation {
@@ -102,7 +102,7 @@ struct upload_status {
 
 // Password recovery function: Defining Format
 #define FROM_MAIL "lee.lapyhin0127@gmail.com"	// This is the email we will be using for the password recovery function.
-#define APP_PASSWORD "xqhp ccru spzc ttxo"							// This is the App Password for the email above. Will be empty in github and during code inspection.
+#define APP_PASSWORD "xqhp ccru spzc ttxo"		// This is the App Password for the email above. Will be empty in github and during code inspection.
 #define PAYLOAD_TEXT                                                 \
         "From: <" FROM_MAIL ">\r\n"                                  \
         "To: <%s>\r\n"                                               \
@@ -121,6 +121,7 @@ bool memberMenu(Member*);
 bool memberModify(Member* current_member, char* newData, int dataSize, int offset);
 bool passwordRec(Member* place_to_put_member); 				// Password Recovery Function
 void signUp();
+bool is_valid_gender(char gender);
 int randomNumGen();
 int stringInput(const char* prompt, char* buffer, int n); 	// Used as a one-liner for prompting and receiving input for string
 char charInput(const char* prompt);							// Used as a one-liner for prompting and receiving input for char
@@ -220,19 +221,6 @@ void main() {
 			system("cls");
 			break;
 		}
-		/*do {
-			printf("If you want to exit the system, please enter 'X'.\nIf you want to go back to the main page, please enter 'R'.\n");
-			printf("Please select >> ");
-			scanf("%c", &abort);
-			clearInputBuffer();
-			system("cls");
-		} while (toupper(abort) != 'X' && toupper(abort) != 'R');
-
-
-
-		} while (toupper(abort) != 'X');
-
-		return 0;*/
 	} while (option != 3);
 }
 
@@ -290,7 +278,7 @@ void userMain() {										// Main Menu. Branches off into Login, Sign Up, Passw
 		printf("4. Exit\n\n");
 		printf(">>>>> ");
 		scanf("%d", &loginOption);
-
+		flush(stdin);
 		switch (loginOption) {
 		case 1:
 			if (login(&current_member) == true) {		// Login function. If login is a success (receives value 'true'), run everything below.
@@ -329,7 +317,6 @@ bool login(Member* place_to_put_member) {
 		printf("Error at opening File!");
 		exit(1);
 	}
-	flush(stdin);
 	stringInput("Enter your username > ", loginName, USERNAME_SIZE);
 	stringInput("Enter your password > ", loginPassword, PASSWORD_SIZE);
 
@@ -363,21 +350,35 @@ bool login(Member* place_to_put_member) {
 }
 
 void signUp() {
-	Member new_member;
-
+	Member new_member, memberBuffer;
 	FILE* fMem;
-	fMem = fopen("memberlist.bin", "ab");
+	bool usernameTaken;
+	fMem = fopen("memberlist.bin", "ab+");
 	if (fMem == NULL) {
 		printf("Error at opening File!");
 		exit(1);
 	}
-	system("cls");
-	flush(stdin);
-	stringInput("Enter username\t\t> ", new_member.username, USERNAME_SIZE);
+	do {
+		usernameTaken = false;
+		system("cls");
+		stringInput("Enter username\t\t> ", new_member.username, USERNAME_SIZE);
+		fseek(fMem, 0, SEEK_SET);
+		while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {				// Looping to read each structure variable saved into memberlist.bin.
+
+			if (strcmp(memberBuffer.username, new_member.username) == 0) {	// If the program finds a match on the username....
+				printf("\nUsername Taken! Please use another...");
+				getch();
+				usernameTaken = true;
+			}
+		}
+	} while (usernameTaken == true);
+
 	stringInput("Enter password\t\t> ", new_member.password, PASSWORD_SIZE);
 	stringInput("Enter ic (without '-')\t> ", new_member.ic, IC_SIZE);
 	stringInput("Enter email\t\t> ", new_member.email, EMAIL_SIZE);
-	while (!(stringInput("Enter gender (M,F)\t> ", new_member.gender, GENDER_SIZE) == 0 && (new_member.gender[0] == 'M' || new_member.gender[0] == 'F'))) {
+	while (1) {
+		new_member.gender = toupper(charInput("Enter gender (M,F)\t> ", new_member.gender));
+		if (is_valid_gender(new_member.gender) == true) break;
 		printf("Dumbass do it again.\n\n");
 		getch();
 		system("cls");
@@ -621,7 +622,7 @@ bool passwordRec(Member* place_to_put_member) {
 					printf("\n\nCode Missmatch! Returning to Main Menu...");
 					getch();
 					system("cls");
-					back = true;
+					return false;
 				}
 			}
 			break;
@@ -661,7 +662,7 @@ bool memberMenu(Member* current_member) {
 		switch (memberOption) {
 		case 1:
 			printf("\nName\t\t> %s\n", current_member->username);
-			printf("Gender\t\t> %s\n", current_member->gender);
+			printf("Gender\t\t> %c\n", current_member->gender);
 			printf("Email\t\t> %s\n", current_member->email);
 			printf("Phone No.\t> +60%s\n", current_member->contact_No);
 			printf("\nChoose Action.\n");
@@ -673,23 +674,42 @@ bool memberMenu(Member* current_member) {
 			flush(stdin);
 			switch (profileOption) {
 			case 1:
+				system("cls");
 				printf("Choose Field to Edit.\n");
 				printf("1. Username\n");
 				printf("2. Password\n");
 				printf("3. Email\n");
-				printf("4. Gender\n");
-				printf("5. Contact Number\n");
-				printf("6. Return to Member Interface\n\n");
+				printf("4. Contact Number\n");
+				printf("5. Return to Member Interface\n\n");
 				printf(">>>>> ");
 				int modifyOption;
 				char newIc[IC_SIZE], newUser[USERNAME_SIZE], newPassword[PASSWORD_SIZE],
-					newEmail[EMAIL_SIZE], newGender[GENDER_SIZE], newContact[CONTACT_SIZE];
+					newEmail[EMAIL_SIZE], newGender, newContact[CONTACT_SIZE];
 
 				scanf("%d", &modifyOption);
 				flush(stdin);
 				switch (modifyOption) {
 				case 1:
-					stringInput("\nEnter new Username > ", newUser, USERNAME_SIZE);
+					printf("");
+					bool usernameTaken;
+					FILE* fMem = fopen("memberlist.bin", "ab+");
+
+					do {
+						usernameTaken = false;
+						system("cls");
+						stringInput("Enter username\t\t> ", newUser, USERNAME_SIZE);
+						fseek(fMem, 0, SEEK_SET);
+						while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {				// Looping to read each structure variable saved into memberlist.bin.
+
+							if (strcmp(memberBuffer.username, newUser) == 0) {	// If the program finds a match on the username....
+								printf("\nUsername Taken! Please use another...");
+								getch();
+								usernameTaken = true;
+							}
+						}
+					} while (usernameTaken == true);
+					fclose(fMem);
+
 					offset = IC_SIZE - sizeof(Member);
 					if (memberModify(current_member, newUser, USERNAME_SIZE, offset) == true);
 
@@ -708,22 +728,12 @@ bool memberMenu(Member* current_member) {
 					backToMain = true;
 					break;
 				case 4:
-					while (!(stringInput("Enter new Gender (M,F)\t\t> ", newGender, GENDER_SIZE) == 0 && (newGender[0] == 'M' || newGender[0] == 'F'))) {
-						printf("Invalid Input.\n\n");
-						getch();
-						system("cls");
-					}
-					offset = (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE) - sizeof(Member);
-					memberModify(current_member, newGender, GENDER_SIZE, offset);
-					backToMain = true;
-					break;
-				case 5:
 					stringInput("\nEnter new phone number > +60", newContact, CONTACT_SIZE);
 					offset = (IC_SIZE + USERNAME_SIZE + PASSWORD_SIZE + EMAIL_SIZE + GENDER_SIZE) - sizeof(Member);
 					memberModify(current_member, newContact, CONTACT_SIZE, offset);
 					backToMain = true;
 					break;
-				case 6:
+				case 5:
 					system("cls");
 					break;
 				default:
@@ -734,6 +744,7 @@ bool memberMenu(Member* current_member) {
 				}
 				break;
 			case 2:
+				system("cls");
 				stringInput("Warning: Deleting Account will result in total wipe of your data.\nIf you wish to proceed, enter your password\n>>>>> ", confirm, 9);
 				if (strcmp(confirm, current_member->password) == 0) {
 
@@ -761,8 +772,9 @@ bool memberMenu(Member* current_member) {
 					}
 				}
 				else {
-					printf("Phrase Mismatch! Press any key to return to Profile...");
+					printf("Password Mismatch! Press any key to return to Profile...");
 					getch();
+					system("cls");
 				}
 				break;
 			case 3:
@@ -777,6 +789,7 @@ bool memberMenu(Member* current_member) {
 			}
 			break;
 		case 2:
+			system("cls");
 			displayTrainList();
 			printf("\nPress any key to go back.");
 			getch();
@@ -1677,7 +1690,6 @@ void staffMenu(Staff* staffInformation) {
 			}
 
 		}
-		decorationFlower();
 	}
 }
 
@@ -2090,9 +2102,8 @@ void scheduleMain() {
 	//prompt user to choose a module
 	int choice;
 	do {
-		printf("============================================\n");
-		printf("\t      TRAIN SCHEDULING\n");
-		printf("============================================\n\n");
+		system("cls");
+		printf("\n TRAIN SCHEDULING\n\n");
 		printf(" 1. Add Train(s)\n");
 		printf(" 2. Modify Train(s)\n");
 		printf(" 3. Add Feedback & Maintanence(s)\n");
@@ -2133,9 +2144,6 @@ void scheduleMain() {
 		case 6: {
 			system("cls");
 			displayTrainList();
-			printf("\nPress any key to go back.");
-			getch();
-			system("cls");
 			break;
 		}
 		case 7: {
@@ -2146,7 +2154,6 @@ void scheduleMain() {
 			printf("Invalid choice, please key in again.\n\n");
 		}
 	} while (choice != 7);
-	printf("END of processing...\n\n");
 	system("pause");
 }
 
@@ -2163,48 +2170,57 @@ void addTrain() {
 	//Prompt user to add a new record
 	printf("Add A Train Record\n");
 	printf("==================\n");
-	printf("Add a new train record (Y = Yes)? > ");
+	printf("Add a new train record (Y = Yes) (N = No)? > ");
 	rewind(stdin);
 	scanf("%c", &selection);
 	printf("\n");
-	while (toupper(selection) == 'Y') {
-		printf("Enter the Time following the format.\n");
-		printf("(Hours:Minutes) (24H Format)\n");
-		printf("\n");
-		printf("Train ID			: ");
-		scanf("%d", &train.trainID);
-		printf("Departure Station		: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.departureStation);
-		printf("Departure Platform		: ");
-		scanf("%d", &train.departurePlatform);
-		printf("Departure Time			: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.departureTime);
-		printf("Arrival Station			: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.arrivalStation);
-		printf("Estimated Arrival Time		: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.eta);
-		printf("Ticket Price			: ");
-		scanf("%lf", &train.ticketPrice);
-		printf("Available Seats			: ");
-		scanf("%d", &train.availableSeats);
-		printf("Train Status			: ");
-		rewind(stdin);
-		scanf("%[^\n]", train.trainStatus);
-		printf("\n");
-		//write train record to the file
-		fprintf(add, "%d#%s#%d#%s#%s#%s#%lf#%d#%s\n",
-			train.trainID, train.departureStation, train.departurePlatform, train.departureTime, train.arrivalStation, train.eta,
-			train.ticketPrice, train.availableSeats, train.trainStatus);
-		printf("Record successfully added...\n\n");
-		count++;
-		printf("Add another record (Y = Yes) (N = No) ? ");
-		rewind(stdin);
-		scanf("%c", &selection);
+	if (toupper(selection) == 'Y') {
+		do {
+			printf("Enter the Time following the format.\n");
+			printf("(Hours:Minutes) (24H Format)\n\n");
+			printf("Train ID               : ");
+			scanf("%d", &train.trainID);
+			printf("Departure Station      : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.departureStation);
+			printf("Departure Platform     : ");
+			scanf("%d", &train.departurePlatform);
+			printf("Departure Time         : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.departureTime);
+			printf("Arrival Station        : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.arrivalStation);
+			printf("Estimated Arrival Time : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.eta);
+			printf("Ticket Price           : ");
+			scanf("%lf", &train.ticketPrice);
+			printf("Available Seats        : ");
+			scanf("%d", &train.availableSeats);
+			printf("Train Status           : ");
+			rewind(stdin);
+			scanf("%[^\n]", train.trainStatus);
+			printf("\n");
+
+			// write train record to the file
+			fprintf(add, "%d#%s#%d#%s#%s#%s#%lf#%d#%s\n",
+				train.trainID, train.departureStation, train.departurePlatform, train.departureTime, train.arrivalStation, train.eta,
+				train.ticketPrice, train.availableSeats, train.trainStatus);
+			printf("Record successfully added...\n\n");
+			count++;
+
+			printf("Add another record (Y = Yes) (N = No) ? ");
+			rewind(stdin);
+			scanf(" %c", &selection);
+			system("cls");
+		} while (toupper(selection) == 'Y');
+	}
+
+	else {
 		system("cls");
+		printf("Returning back to main menu.\n");
+		return;
 	}
 	printf("\n");
 	printf("%d Records have been added\n\n", count);
@@ -2216,7 +2232,7 @@ void modifyTrain() {
 	FILE* modify;
 	Train trains[TRAINS];
 	int i = 0, count = 0, modifyId, found = 0, choice, newPlatform, newSeats;
-	char confirm, newDptStation[STATION], newTime[TIME], newArrStation[STATION], newEta[TIME], newStatus[STATUS];
+	char confirm, selection = 'Y', newDptStation[STATION], newTime[TIME], newArrStation[STATION], newEta[TIME], newStatus[STATUS];
 	double newPrice;
 
 	if ((modify = fopen("train.txt", "r")) == NULL) {
@@ -2232,108 +2248,124 @@ void modifyTrain() {
 	}
 	count = i;
 	fclose(modify);
-	//prompt user to choose train to modify
+	//prompt user to choose train to modify 
 	printf("Modify A Train Record\n");
 	printf("=====================\n");
-	printf("Enter the Train ID of the train you want to modify: ");
+	printf("Add a new train record (Y = Yes) (N = No)? > ");
 	rewind(stdin);
-	scanf("%d", &modifyId);
+	scanf("%c", &selection);
 
-	for (i = 0; i < count; i++) {
-		if (trains[i].trainID == modifyId) {
-			printf("\nSelect the field you want to modify:\n");
-			printf("1. Departure Station\n");
-			printf("2. Departure Platform\n");
-			printf("3. Departure Time\n");
-			printf("4. Arrival Station\n");
-			printf("5. Estimated Arrival Time\n");
-			printf("6. Ticket Price\n");
-			printf("7. Available Seats\n");
-			printf("8. Train Status\n");
-			printf("\nEnter your choice: ");
-			scanf("%d", &choice);
+	if (toupper(selection) == 'Y') {
+		printf("\nEnter the Train ID of the train you want to modify: ");
+		rewind(stdin);
+		scanf("%d", &modifyId);
 
-			switch (choice) {
-			case 1:
-				printf("\nEnter the new departure station: ");
-				rewind(stdin);
-				scanf("%[^\n]", newDptStation);
-				break;
-			case 2:
-				printf("\nEnter the new departure platform: ");
-				scanf("%d", &newPlatform);
-				break;
-			case 3:
-				printf("\nEnter the new departure time: ");
-				rewind(stdin);
-				scanf("%[^\n]", newTime);
-				break;
-			case 4:
-				printf("\nEnter the new arrival station: ");
-				rewind(stdin);
-				scanf("%[^\n]", newArrStation);
-				break;
-			case 5:
-				printf("\nEnter the new estimated arrival time: ");
-				rewind(stdin);
-				scanf("%[^\n]", newEta);
-				break;
-			case 6:
-				printf("\nEnter the new ticket price: ");
-				scanf("%lf", &newPrice);
-				break;
-			case 7:
-				printf("\nEnter the new number of available seats: ");
-				scanf("%d", &newSeats);
-				break;
-			case 8:
-				printf("\nEnter the new train status: ");
-				rewind(stdin);
-				scanf("%[^\n]", newStatus);
-				break;
-			default:
-				printf("\nInvalid choice.No changes made.\n");
-				return;
-			}
+		for (i = 0; i < count; i++) {
+			if (trains[i].trainID == modifyId) {
+				printf("\nSelect the field you want to modify:\n");
+				printf("1. Departure Station\n");
+				printf("2. Departure Platform\n");
+				printf("3. Departure Time\n");
+				printf("4. Arrival Station\n");
+				printf("5. Estimated Arrival Time\n");
+				printf("6. Ticket Price\n");
+				printf("7. Available Seats\n");
+				printf("8. Train Status\n");
+				printf("\nEnter your choice: ");
+				scanf("%d", &choice);
 
-			printf("\nConfirm to modify the new data ? (Y=YES)|(N=NO) > ");
-			rewind(stdin);
-			scanf(" %c", &confirm);
-			rewind(stdin);
-			//copy new data and replace old data
-			if (toupper(confirm) == 'Y') {
-				if (choice == 1) {
-					strcpy(trains[i].departureStation, newDptStation);
+				switch (choice) {
+				case 1:
+					printf("\nEnter the new departure station: ");
+					rewind(stdin);
+					scanf("%[^\n]", newDptStation);
+					break;
+				case 2:
+					printf("\nEnter the new departure platform: ");
+					scanf("%d", &newPlatform);
+					break;
+				case 3:
+					printf("\nEnter the new departure time: ");
+					rewind(stdin);
+					scanf("%[^\n]", newTime);
+					break;
+				case 4:
+					printf("\nEnter the new arrival station: ");
+					rewind(stdin);
+					scanf("%[^\n]", newArrStation);
+					break;
+				case 5:
+					printf("\nEnter the new estimated arrival time: ");
+					rewind(stdin);
+					scanf("%[^\n]", newEta);
+					break;
+				case 6:
+					printf("\nEnter the new ticket price: ");
+					scanf("%lf", &newPrice);
+					break;
+				case 7:
+					printf("\nEnter the new number of available seats: ");
+					scanf("%d", &newSeats);
+					break;
+				case 8:
+					printf("\nEnter the new train status: ");
+					rewind(stdin);
+					scanf("%[^\n]", newStatus);
+					break;
+				default:
+					printf("\nInvalid choice.No changes made.\n");
+					return;
 				}
-				else if (choice == 2) {
-					trains[i].departurePlatform = newPlatform;
+
+				printf("\nConfirm to modify the new data ? (Y=YES)|(N=NO) > ");
+				rewind(stdin);
+				scanf(" %c", &confirm);
+				rewind(stdin);
+				//copy new data and replace old data
+				if (toupper(confirm) == 'Y') {
+					if (choice == 1) {
+						strcpy(trains[i].departureStation, newDptStation);
+					}
+					else if (choice == 2) {
+						trains[i].departurePlatform = newPlatform;
+					}
+					else if (choice == 3) {
+						strcpy(trains[i].departureTime, newTime);
+					}
+					else if (choice == 4) {
+						strcpy(trains[i].arrivalStation, newArrStation);
+					}
+					else if (choice == 5) {
+						strcpy(trains[i].eta, newEta);
+					}
+					else if (choice == 6) {
+						trains[i].ticketPrice = newPrice;
+					}
+					else if (choice == 7) {
+						trains[i].availableSeats = newSeats;
+					}
+					else if (choice == 8) {
+						strcpy(trains[i].trainStatus, newStatus);
+					}
+					printf("Data updated successfully.\n");
 				}
-				else if (choice == 3) {
-					strcpy(trains[i].departureTime, newTime);
+				else {
+					system("cls");
+					printf("Update canceled.\n");
+					printf("\nPress any key to go back > ");
+					getch();
+					return;
 				}
-				else if (choice == 4) {
-					strcpy(trains[i].arrivalStation, newArrStation);
-				}
-				else if (choice == 5) {
-					strcpy(trains[i].eta, newEta);
-				}
-				else if (choice == 6) {
-					trains[i].ticketPrice = newPrice;
-				}
-				else if (choice == 7) {
-					trains[i].availableSeats = newSeats;
-				}
-				else if (choice == 8) {
-					strcpy(trains[i].trainStatus, newStatus);
-				}
-				printf("Data updated successfully.\n");
+				found = 1;
+				break;
 			}
-			else {
-				printf("Update canceled.\n");
-			}
-			found = 1;
-			break;
 		}
+	}
+
+	else {
+		system("cls");
+		printf("Returning back to main menu.\n");
+		return;
 	}
 
 	if (!found) {
@@ -2382,6 +2414,7 @@ void addMainFeed() {
 	Train trains[TRAINS];
 	MainFeed mainfeed[TRAINS];
 	int i = 0, count = 0, chosenTrain;
+	char selection = 'Y';
 
 	if ((readList = fopen("train.txt", "r")) == NULL) {
 		printf("Error opening the file...\n\n");
@@ -2399,33 +2432,43 @@ void addMainFeed() {
 	//add feedback & maintenance data
 	printf("Add Train Feedback & Maintenance\n");
 	printf("================================\n");
-	printf("Select the train you want to add to: ");
-	scanf("%d", &chosenTrain);
+	printf("Add a new train feedback & maintenance (Y = Yes) (N = No)? > ");
+	rewind(stdin);
+	scanf("%c", &selection);
+	if (toupper(selection) == 'Y') {
+		printf("\nSelect the train you want to add to: ");
+		scanf("%d", &chosenTrain);
+		for (int j = 0; j < i; j++) {
+			if (chosenTrain == trains[j].trainID) {
+				printf("\nAdd details for Train %d\n", trains[j].trainID);
+				printf("==============================\n");
+				printf("Add Feedback: ");
+				rewind(stdin);
+				scanf("%[^\n]", mainfeed[j].feedback);
+				printf("\nAdd Maintenance: ");
+				rewind(stdin);
+				scanf("%[^\n]", mainfeed[j].maintenance);
+				printf("\n");
 
-	for (int j = 0; j < i; j++) {
-		if (chosenTrain == trains[j].trainID) {
-			printf("\nAdd details for Train %d\n", trains[j].trainID);
-			printf("==============================\n");
-			printf("Add Feedback: ");
-			rewind(stdin);
-			scanf("%[^\n]", mainfeed[j].feedback);
-			printf("\nAdd Maintenance: ");
-			rewind(stdin);
-			scanf("%[^\n]", mainfeed[j].maintenance);
-			printf("\n");
+				if ((writeList = fopen("staffPurpose.txt", "a")) == NULL) {
+					printf("Error opening the file...\n\n");
+					return;
+				}
 
-			if ((writeList = fopen("staffPurpose.txt", "a")) == NULL) {
-				printf("Error opening the file...\n\n");
-				return;
+				fprintf(writeList, "%d#%s#%s\n",
+					trains[j].trainID, mainfeed[j].feedback, mainfeed[j].maintenance);
+				printf("Feedback & Maintenance successfully added...\n\n");
+				count++;
+				fclose(writeList);
+				break;
 			}
-
-			fprintf(writeList, "%d#%s#%s\n",
-				trains[j].trainID, mainfeed[j].feedback, mainfeed[j].maintenance);
-			printf("Feedback & Maintenance successfully added...\n\n");
-			count++;
-			fclose(writeList);
-			break;
 		}
+	}
+
+	else {
+		system("cls");
+		printf("Returning back to main menu.\n");
+		return;
 	}
 
 	if (count == 0) {
@@ -2478,7 +2521,7 @@ void displayMainFeed() {
 void searchTrain() {
 	FILE* search;
 	int i = 0, count = 0, searchTrain;
-	char cont;
+	char cont, selection = 'Y';
 	Train trains[TRAINS];
 
 	if ((search = fopen("train.txt", "r")) == NULL) {
@@ -2497,27 +2540,38 @@ void searchTrain() {
 	do {
 		printf("Search A Train Record\n");
 		printf("=====================\n");
-		printf("Train ID(s) : ");
-		scanf("%d", &searchTrain);
-		printf("=====================\n\n");
-		printf("%-10s | %-20s | %-18s | %-14s | %-16s | %-6s | %-13s | %-16s | %s\n",
-			"Train ID", "Departure Station", "Departure Platform", "Departure Time",
-			"Arrival Station", "ETA", "Ticket Price", "Available Seats", "Train Status");
-		printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+		printf("Add a new train feedback & maintenance (Y = Yes) (N = No)? > ");
+		rewind(stdin);
+		scanf("%c", &selection);
 
-		for (int i = 0; i < TRAINS; i++) {
-			if (searchTrain == trains[i].trainID) {
-				printf("%-10d | %-20s | %-18d | %-14s | %-16s | %-6s | %-13.2lf | %-16d | %s\n\n",
-					trains[i].trainID, trains[i].departureStation, trains[i].departurePlatform,
-					trains[i].departureTime, trains[i].arrivalStation, trains[i].eta,
-					trains[i].ticketPrice, trains[i].availableSeats, trains[i].trainStatus);
+		if (toupper(selection) == 'Y') {
+			printf("\nTrain ID(s) : ");
+			scanf("%d", &searchTrain);
+			printf("=====================\n\n");
+			printf("%-10s | %-20s | %-18s | %-14s | %-16s | %-6s | %-13s | %-16s | %s\n",
+				"Train ID", "Departure Station", "Departure Platform", "Departure Time",
+				"Arrival Station", "ETA", "Ticket Price", "Available Seats", "Train Status");
+			printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+			for (int i = 0; i < TRAINS; i++) {
+				if (searchTrain == trains[i].trainID) {
+					printf("%-10d | %-20s | %-18d | %-14s | %-16s | %-6s | %-13.2lf | %-16d | %s\n\n",
+						trains[i].trainID, trains[i].departureStation, trains[i].departurePlatform,
+						trains[i].departureTime, trains[i].arrivalStation, trains[i].eta,
+						trains[i].ticketPrice, trains[i].availableSeats, trains[i].trainStatus);
+				}
 			}
+			printf("\nSearch another (Y = yes)? ");
+			rewind(stdin);
+			scanf(" %c", &cont);
+			system("cls");
 		}
 
-		printf("\nSearch another (Y = yes)? ");
-		rewind(stdin);
-		scanf(" %c", &cont);
-		system("cls");
+		else {
+			system("cls");
+			printf("Returning back to main menu.\n");
+			return;
+		}
 	} while (toupper(cont) == 'Y');
 
 	printf("Press any key to go back > ");
@@ -2547,7 +2601,8 @@ void displayTrainList() {
 		"Ticket Price",
 		"Available Seats",
 		"Train Status");
-	printf("-----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("-----------+----------------------+--------------------+----------------+------------------+--------+---------------+------------------+--------------\n");
+
 
 	//read data from text file and print out
 	while (fscanf(list, "%d#%[^#]#%d#%[^#]#%[^#]#%[^#]#%lf#%d#%[^\n]",
@@ -2565,7 +2620,9 @@ void displayTrainList() {
 			trains[i].trainStatus);
 		i++;
 	}
-
+	printf("\nPress any key to go back > ");
+	getch();
+	system("cls");
 	fclose(list);
 }
 
@@ -2675,11 +2732,11 @@ int stringInput(const char* prompt, char* buffer, int n) {
 char charInput(const char* prompt) {
 	printf("%s", prompt);
 
-	int ch = getc(stdin);
+	int ch = fgetc(stdin);
 
 	if (ch == '\n')
 		// Fucking Idiot pressed "ENTER" who tf does that
-		return 1;
+		return ch;
 
 	flush(stdin);
 	return ch;
@@ -2690,6 +2747,9 @@ void flush(FILE* stream) {
 	while ((c = getc(stream)) != '\n' && c != EOF);
 }
 
+bool is_valid_gender(char gender) {
+	return gender == 'M' || gender == 'F';
+}
 
 int readTrainFile(Train trains[]) {
 	int count = 0;
