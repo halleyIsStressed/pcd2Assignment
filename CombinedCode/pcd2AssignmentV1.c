@@ -148,7 +148,7 @@ void displayFnBMenu(FNB fnb[], int* numOfItem);
 double fnbFunction(FNB fnb[], int* numOfItem);
 void paymentFunction(TICKET ticket[], int* numOfTicket);
 bool exitFunction(TICKET ticket[], int* numOfTicket);
-void displayAllTicket(TICKET tikcet[], int* numOfTicket);
+void displayAllTicket();
 
 
 // Function Declarations: STAFF MODULE (Implementation 100%)
@@ -1591,23 +1591,26 @@ bool exitFunction(TICKET ticket[], int* numOfTicket) {	// Function to handle pro
 	return true;
 }
 
-void displayAllTicket(TICKET ticket[], int* numOfTicket) {	// Function to display all ticket booking records
+void displayAllTicket() {
 	system("cls");
+	TICKET ticket[100];										// Declare an array of TICKET structs to store ticket information.
+	int numOfTicket = readTicketFile(ticket);				// Call the readTicketFile function to read ticket information from a file. Store the number of tickets read into numOfTicket.
+
+
 	int i, count = 0;
 	printf("============================================\n");
 	printf("\t    Display ALL Ticket Booking\n");
 	printf("============================================\n\n");
 	printf("\n%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "Booking ID", "Ticket Holder Name", "Booking Date", "Booking Time", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "ETA", "Coach", "Seat No", "Departure Platform", "Ticket Price (RM)", "Booking Status");
 	printf("%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "==========", "==================", "============", "============", "==============", "=================", "===============", "==============", "=====", "=====", "=======", "==================", "=================", "===================");
-	for (i = 0; i < *numOfTicket; i++) {	// Loop through ticket array and display each ticket booking record
+	for (i = 0; i < numOfTicket; i++) {
 		printf("%-10s %-20s %02d/%02d/%04d \t%02d:%02d \t\t%02d/%02d/%04d %14s %18s %15s %10s %4c \t    %02d %18d %20.2lf %23s\n",
 			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min,
 			ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation,
 			ticket[i].departTime, ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
-		count++;	// Increment the counter for each ticket displayed
+		count++;
 	}
-	printf("\n\t%d ticket booking records listed.\nPress any key to continue... ", count);	// Display total number of ticket booking records
-}
+	printf("\n\t%d ticket booking records listed.\nPress any key to continue... ", count);
 	getch();
 }
 
@@ -2827,7 +2830,7 @@ void clearInputBuffer() {
 }
 
 
- // Decorative Functions
+// Decorative Functions
 
 void decorationFlower() {
 	printf("%s", "*");
