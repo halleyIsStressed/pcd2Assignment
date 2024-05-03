@@ -1218,7 +1218,7 @@ void searchBooking(TICKET ticket[], int* numOfTicket) {	// Function to search fo
 	system("cls");
 }
 
-void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain) {	// Function to edit a booked ticket
+void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem) {	// Function to edit a booked ticket
 	system("cls");
 	int i, editIndex, found;
 	char editID[10], confirmUpd, cont;
@@ -1322,6 +1322,19 @@ void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTr
 				scanf("%d", &temp.seatNo);
 			}
 			rewind(stdin);
+			do {
+				printf(" Add on some food or bevarage? (Y = Yes): ");
+				scanf("%c", &addOn);
+				rewind(stdin);
+				if (toupper(addOn) == 'Y') {
+					displayFnBMenu(fnb, numOfItem);
+					fnbTotal = fnbFunction(fnb, numOfItem);
+					temp.ticPrice += fnbTotal;
+					printf(" Add on some food or bevarage? (Y = Yes): ");
+					scanf("%c", &addOn);
+					rewind(stdin);
+				}
+			} while (toupper(addOn) == 'Y');
 
 			printf("Confirm to update? (Y = Yes): ");
 			scanf("%c", &confirmUpd);
@@ -1543,11 +1556,10 @@ void paymentFunction(TICKET ticket[], int* numOfTicket) {	// Function to handle 
 				default:
 					printf("Invalid choice! Please try again!\n");
 				}
-
 			}
-			if (!found)
-				printf("Booking ID Not found! Please try again.\n\n");
 		}
+		if (!found)
+			printf("Booking ID %s Not found! Please try again.\n\n", temp.ticketID);
 		printf("\nMake another Booking payment? (Y = Yes): ");
 		scanf("%c", &cont);
 		rewind(stdin);
@@ -1586,7 +1598,7 @@ void displayAllTicket(TICKET ticket[], int* numOfTicket) {	// Function to displa
 	printf("============================================\n\n");
 	printf("\n%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "Booking ID", "Ticket Holder Name", "Booking Date", "Booking Time", "Departure Date", "Departure Station", "Arrival Station", "Departure Time", "ETA", "Coach", "Seat No", "Departure Platform", "Ticket Price (RM)", "Booking Status");
 	printf("%-10s %-20s %-15s %-15s %-15s %-6s %-8s %-15s %-6s %-8s %-12s %-18s %-15s %-15s\n", "==========", "==================", "============", "============", "==============", "=================", "===============", "==============", "=====", "=====", "=======", "==================", "=================", "===================");
-	for (i = 0; i < numOfTicket; i++) {	// Loop through ticket array and display each ticket booking record
+	for (i = 0; i < *numOfTicket; i++) {	// Loop through ticket array and display each ticket booking record
 		printf("%-10s %-20s %02d/%02d/%04d \t%02d:%02d \t\t%02d/%02d/%04d %14s %18s %15s %10s %4c \t    %02d %18d %20.2lf %23s\n",
 			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min,
 			ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation,
