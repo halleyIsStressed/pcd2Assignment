@@ -44,6 +44,7 @@ typedef struct {
 	struct Duty dutyScadule;
 }Staff;
 
+
 // Defining size for train structure
 #define TRAINS_SIZE 10
 #define STATION_SIZE 50
@@ -141,7 +142,7 @@ void bookingMain();
 void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], int* numOfTrain);
 void addBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem);
 void searchBooking(TICKET ticket[], int* numOfTicket);
-void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain);
+void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem);
 void displayBooking(TICKET ticket[], int* numOfTicket);
 void deleteBooking(TICKET ticket[], int* numOfTicket);
 void displayFnBMenu(FNB fnb[], int* numOfItem);
@@ -167,9 +168,9 @@ void searchStaff();
 
 // Function Declarations: SCHEDULING MODULE (Implementation 100%)
 void scheduleMain();
-void addTrain();
-void modifyTrain();
-void addMainFeed();
+void addTrain(Train* train);
+void modifyTrain(Train* trains);
+void addMainFeed(Train* trains);
 void displayMainFeed();
 void searchTrain();
 void displayTrainList();
@@ -190,9 +191,7 @@ void line();
 
 // Main Menus
 void main() {
-
 	int option;
-	char abort;
 	do {
 		title();
 		printf("Are you a Staff or a Member?\n");
@@ -242,7 +241,7 @@ void staffMain() {
 
 		switch (option) {
 		case 1:
-			if (staffLogin(&current_staff) == true) {		// Login function. If login is a success (receives value 'true'), run everything below.
+			if (staffLogin(&current_staff) == true) {
 				printf("Welcome, %s!\n\n", current_staff.information.name);
 				staffMenu(&current_staff);
 			}
@@ -281,7 +280,7 @@ void userMain() {										// Main Menu. Branches off into Login, Sign Up, Passw
 		flush(stdin);
 		switch (loginOption) {
 		case 1:
-			if (login(&current_member) == true) {		// Login function. If login is a success (receives value 'true'), run everything below.
+			if (login(&current_member) == true) {		// Login function. If login is a success (receives value 'true'), move to member menu.
 				memberMenu(&current_member);
 			}
 			break;
@@ -289,7 +288,7 @@ void userMain() {										// Main Menu. Branches off into Login, Sign Up, Passw
 			signUp();
 			break;
 		case 3:
-			if (passwordRec(&current_member) == true) {	// Password Recovery function. Runs login() if success (not implemented yet)
+			if (passwordRec(&current_member) == true) {	// Password Recovery function. If succeeded (receives value 'true'), move to member menu.
 				memberMenu(&current_member);
 			}
 			break;
@@ -362,11 +361,11 @@ void signUp() {
 		usernameTaken = false;
 		system("cls");
 		stringInput("Enter username\t\t> ", new_member.username, USERNAME_SIZE);
-		fseek(fMem, 0, SEEK_SET);
+		fseek(fMem, 0, SEEK_SET);											// Sets the pointer at the beginning of the file. This is to prevent starting from the next line in the case of taken username.
 		while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {				// Looping to read each structure variable saved into memberlist.bin.
 
 			if (strcmp(memberBuffer.username, new_member.username) == 0) {	// If the program finds a match on the username....
-				printf("\nUsername Taken! Please use another...");
+				printf("\nUsername Taken! Please use another...");			// ...we will not allow Member to switch to that username. Loop until a suitable username is entered.
 				getch();
 				usernameTaken = true;
 			}
@@ -378,8 +377,8 @@ void signUp() {
 	stringInput("Enter email\t\t> ", new_member.email, EMAIL_SIZE);
 	while (1) {
 		new_member.gender = toupper(charInput("Enter gender (M,F)\t> ", new_member.gender));
-		if (is_valid_gender(new_member.gender) == true) break;
-		printf("Dumbass do it again.\n\n");
+		if (is_valid_gender(new_member.gender) == true) break;	// Validation check for gender
+		printf("Invalid Input. Please try again...\n\n");
 		getch();
 		system("cls");
 	}
@@ -406,19 +405,19 @@ bool staffLogin(Staff* place_to_put_staff) {
 	stringInput("Enter your staff ID > ", loginID, 10);
 	stringInput("Enter your password > ", loginPassword, PASSWORD_SIZE);
 
-	while (fread(&staffBuffer, sizeof(Staff), 1, fStaff)) {				// Looping to read each structure variable saved into Staff.bin.
+	while (fread(&staffBuffer, sizeof(Staff), 1, fStaff)) {					// Looping to read each structure variable saved into Staff.bin.
 
-		if (strcmp(staffBuffer.staffID, loginID) == 0) {			// If the program finds a match on the username....
+		if (strcmp(staffBuffer.staffID, loginID) == 0) {					// If the program finds a match on the username....
 
 			if (strcmp(staffBuffer.staffPassword, loginPassword) == 0) {	// ...and If it finds that the password also matches...
 				system("cls");
 				printf("Login Successful!\n");
-				*place_to_put_staff = staffBuffer;					// it will pass the values of the temporary storage (user input) to the the struct that stores the member currently logged in.
+				*place_to_put_staff = staffBuffer;							// it will pass the values of the temporary storage (user input) to the the struct that stores the member currently logged in.
 				fclose(fStaff);
-				return true;											// and it will return the boolean value 'true'.
+				return true;												// and it will return the boolean value 'true'.
 			}
 			else {
-				printf("Wrong Password!");								// If the password doesn't match, restart.
+				printf("Wrong Password!");									// If the password doesn't match, restart.
 				printf(" Press any key to try again...\n");
 				getch();
 				system("cls");
@@ -590,6 +589,22 @@ void staffSignUp() {
 }
 
 bool passwordRec(Member* place_to_put_member) {
+	/*
+	This function uses libcurl to send a recovery code to the email associated with the Member Account.
+
+	Due to limitations of smtp, this function ONLY WORKS ON @gmail.com ACCOUNTS. DO NOT USE TARUMT EMAIL.
+	It also requires an Internet connection, and having integrated libcurl to run.
+
+	In order to run this function, the App Password section in Line 106 *HAS* to be filled.
+	At the point of code inspection/in github, the line will be empty.
+	This is to prevent from people using the App Password and my email to mass send spam emails or scams.
+	To test this function, you can use your own App Password (created here https://myaccount.google.com/apppasswords)
+	then, you can change line 105 to any email of your choice.
+
+	Do note that you will have to create a Member Account with your email so that you may receive the recovery code.
+	*/
+
+
 	int recOption, code = 0, codeAns;
 	char loginName[USERNAME_SIZE] = { NULL };
 	bool back = false;
@@ -601,17 +616,16 @@ bool passwordRec(Member* place_to_put_member) {
 	title();
 	stringInput("\nEnter your username > ", loginName, USERNAME_SIZE);
 	while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {
-		if (strcmp(memberBuffer.username, loginName) == 0) {
+		if (strcmp(memberBuffer.username, loginName) == 0) {							// Looking for the match in Username.
 			while (!back) {
 				printf("\nSending Email...");
-				*place_to_put_member = memberBuffer;
-				code = randomNumGen();
-				sendMail(memberBuffer.email, code);
+				code = randomNumGen();													// Here, we generate a random 4 digit code.
+				sendMail(memberBuffer.email, code);										// And we pass the email and code to this libcurl function, where it does its thing and sends the email.
 				printf("\n\nA Code is sent to your Email! Please enter it here > ");
 				scanf("%d", &codeAns);
 				flush(stdin);
-				if (codeAns == code) {
-					*place_to_put_member = memberBuffer;
+				if (codeAns == code) {													// If the user input matches the code,
+					*place_to_put_member = memberBuffer;								// The user would have successfully logged in.
 					system("cls");
 					printf("Login Successful!\n");
 					fclose(fMem);
@@ -646,6 +660,7 @@ bool memberMenu(Member* current_member) {
 
 	while (backToMain == false) {
 		int memberOption = 0, profileOption = 0, offset;
+
 		title();
 		printf("Welcome, %s!\n\n", current_member->username);
 		printf("Choose Function.\n");
@@ -673,6 +688,21 @@ bool memberMenu(Member* current_member) {
 			flush(stdin);
 			switch (profileOption) {
 			case 1:
+				/*
+																					- HOW MODIFYING WORKS -
+				Since we are using binary files with this, the way we scan for the correct block is to read the SIZE of a struct, and put it into a temporary variable we call memberBuffer.
+				However, reading block by block means that the pointer would be placed at the END of the structure we want to modify. Therefore, we want to move the pointer to the specific
+				datafield of the block we are looking to modify. For that, we use fseek, and to tell the command how far back we want to move our pointer, we use the variable 'offset'.
+
+				For example, we want to modify our password. IC is the first datafield of the struct, followed by username, then password. To move the pointer back to the very beginning of 
+				the username field, we tell fseek how far back we want to go, which is calculated by the sum of the size of datafields before password, minus the total size of the struct.
+
+																			(IC_SIZE+USERNAME_SIZE) - sizeof(Member)
+
+				...and by plugging it into fseek, we effectively moved to the front of the 'password' datafield, allowing us to simply fwrite the new data.
+				*/
+
+
 				system("cls");
 				printf("Choose Field to Edit.\n");
 				printf("1. Username\n");
@@ -700,8 +730,8 @@ bool memberMenu(Member* current_member) {
 						fseek(fMem, 0, SEEK_SET);
 						while (fread(&memberBuffer, sizeof(Member), 1, fMem)) {				// Looping to read each structure variable saved into memberlist.bin.
 
-							if (strcmp(memberBuffer.username, newUser) == 0) {	// If the program finds a match on the username....
-								printf("\nUsername Taken! Please use another...");
+							if (strcmp(memberBuffer.username, newUser) == 0) {				// If the program finds a match on the username....
+								printf("\nUsername Taken! Please use another...");			// ...we will not allow Member to switch to that username. Loop until a suitable username is entered.
 								getch();
 								usernameTaken = true;
 							}
@@ -743,8 +773,16 @@ bool memberMenu(Member* current_member) {
 				}
 				break;
 			case 2:
+				/*															HOW DELETION WORKS
+				Realistically, there are two ways to remove a block of data from a binary file. Delete it outright, and shift all subsequent records backwards,
+				or the method we use here - Make an entirely new file (memberlistbuffer.bin), copypaste everything from the old file (memberlistbuffer) BUT skip
+				over the data we want to delete. We then remove the old file and rename the new file to the old file's name.
+
+				Of course, we validate the user's password beforehand.
+				*/
+
 				system("cls");
-				stringInput("Warning: Deleting Account will result in total wipe of your data.\nIf you wish to proceed, enter your password\n>>>>> ", confirm, 9);
+				stringInput("Warning: Deleting Account will result in total wipe of your data.\nIf you wish to proceed, enter your password\n>>>>> ", confirm, PASSWORD_SIZE);
 				if (strcmp(confirm, current_member->password) == 0) {
 
 					FILE* fCopy;
@@ -795,7 +833,7 @@ bool memberMenu(Member* current_member) {
 			system("cls");
 			break;
 		case 3:
-			bookingMain();
+			bookingMain();	// Start of Booking Module.
 			break;
 		case 4:
 			memberLostAndFound(current_member);
@@ -814,6 +852,20 @@ bool memberMenu(Member* current_member) {
 }
 
 bool memberModify(Member* current_member, char* newData, int dataSize, int offset) {
+	/*
+																		- HOW MODIFYING WORKS -
+	Since we are using binary files with this, the way we scan for the correct block is to read the SIZE of a struct, and put it into a temporary variable we call memberBuffer.
+	However, reading block by block means that the pointer would be placed at the END of the structure we want to modify. Therefore, we want to move the pointer to the specific
+	datafield of the block we are looking to modify. For that, we use fseek, and to tell the command how far back we want to move our pointer, we use the variable 'offset'.
+
+	For example, we want to modify our password. IC is the first datafield of the struct, followed by username, then password. To move the pointer back to the very beginning of
+	the username field, we tell fseek how far back we want to go, which is calculated by the sum of the size of datafields before password, minus the total size of the struct.
+
+																(IC_SIZE+USERNAME_SIZE) - sizeof(Member)
+
+	...and by plugging it into fseek, we effectively moved to the front of the 'password' datafield, allowing us to simply fwrite the new data.
+	*/
+	
 	FILE* fMod = fopen("memberlist.bin", "rb+");
 	Member memberBuffer;
 
@@ -902,7 +954,7 @@ void lnfReport(Member* current_member) {
 		exit(1);
 	}
 	LostItem item;
-	strcpy(&item.reporter, current_member->username);
+	strcpy(&item.reporter, current_member->username);		// This is where we get the reporter data from.
 	int loopa = 1;
 	stringInput("\nEnter the type of the item (Phone, Bottle, etc) > ", &item.type, 20);
 	stringInput("Enter the colour of the item (Blue, White, etc) > ", &item.colour, 10);
@@ -973,13 +1025,13 @@ void lnfDisplaySort(char* sorter) {
 	while (fread(&itemBuffer, sizeof(LostItem), 1, fLost)) {				// Looping to read each structure variable saved into lostfound.bin.
 		bool printItem = false;
 
-		if (strcmp(itemBuffer.type, sorter) == 0) {
+		if (strcmp(itemBuffer.type, sorter) == 0) {							// Checking to see if the selected sort method is TYPE, print if match is found.
 			printItem = true;
 		}
-		else if (strcmp(itemBuffer.colour, sorter) == 0) {
+		else if (strcmp(itemBuffer.colour, sorter) == 0) {					// Checking to see if the selected sort method is COLOUR, print if match is found.
 			printItem = true;
 		}
-		else if (strcmp(itemBuffer.location, sorter) == 0) {
+		else if (strcmp(itemBuffer.location, sorter) == 0) {				// Checking to see if the selected sort method is LOCATION, print if match is found.
 			printItem = true;
 		}
 
@@ -2177,6 +2229,9 @@ void scheduleMain() {
 		case 6: {
 			system("cls");
 			displayTrainList();
+			printf("\nPress any key to go back.");
+			getch();
+			system("cls");
 			break;
 		}
 		case 7: {
