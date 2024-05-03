@@ -52,24 +52,24 @@ typedef struct {
 #define FEEDBACK 100
 #define MAINTENANCE 100
 
-struct DATE {
-	int day, month, year;
+struct DATE {	// This struct represents a date with day, month, and year components.
+	int day, month, year;	// Holds the day, month, year component of the date.
 };
 
-struct Time {
-	int hour, min;
+struct Time {	// This struct represents a time with hour and minute components.
+	int hour, min;	// Holds the hour, and minute component of the time.
 };
 
-typedef struct {								 // Define a custom data type named TICKET using typedef.
+typedef struct {	// Define a custom data type named TICKET using typedef.
 	char ticketID[10], name[30], coach, status[30], departStation[50], arrivStation[50];
 	char departTime[10], estimateTimeArrive[10];
-	struct DATE bookDate, departDate;			//Holds the booking date, and departure date using the DATE struct
-	struct Time time;						// Holds the time using the TIME struct.
+	struct DATE bookDate, departDate;	// Holds the booking date, and departure date using the DATE struct
+	struct Time time; // Holds the time using the TIME struct.
 	int seatNo, departPlatform;
 	double amount, ticPrice;
 }TICKET;
 
-typedef struct {
+typedef struct {	// Definition of a structure representing a food and beverage item.
 	char fnbName[30];
 	double fnbPrice;
 }FNB;
@@ -999,7 +999,7 @@ void lnfDisplaySort(char* sorter) {
 
 // Member Module Branch: BOOKING MODULE
 void bookingMain() {
-	system("cls");
+	system("cls");	// Clear the console screen.
 	Train trains[TRAINS];
 	int numOfTrain = readTrainFile(trains);
 	TICKET ticket[100];	// Declare an array of TICKET structs to store ticket information.
@@ -1009,7 +1009,7 @@ void bookingMain() {
 	bookingMenu(ticket, &numOfTicket, fnb, &numOfItem, trains, &numOfTrain);  // Call the functionsChoosen function to handle user input and perform actions accordingly.
 }
 
-void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], int* numOfTrain) {				// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
+void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, Train trains[], int* numOfTrain) {	// Function to handle various ticket booking operations based on user input. Using parameters to pass value.
 	system("cls");
 	int choice;
 	bool returnToMember = false;
@@ -1030,7 +1030,7 @@ void bookingMenu(TICKET ticket[], int* numOfTicket, FNB fnb[], int* numOfItem, T
 		switch (choice) {
 		case 1: addBooking(ticket, numOfTicket, trains, numOfTrain, fnb, numOfItem); break;
 		case 2: searchBooking(ticket, numOfTicket); break;
-		case 3: editBooking(ticket, numOfTicket, trains, numOfTrain); break;
+		case 3: editBooking(ticket, numOfTicket, trains, numOfTrain, fnb, numOfItem); break;
 		case 4: deleteBooking(ticket, numOfTicket); break;
 		case 5: displayBooking(ticket, numOfTicket); break;
 		case 6: paymentFunction(ticket, numOfTicket); break;
@@ -1217,10 +1217,11 @@ void searchBooking(TICKET ticket[], int* numOfTicket) {	// Function to search fo
 	system("cls");
 }
 
-void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain) {	// Function to edit a booked ticket
+void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem) {	// Function to edit a booked ticket
 	system("cls");
 	int i, editIndex, found;
-	char editID[10], confirmUpd, cont;
+	char editID[10], confirmUpd, cont, addOn;
+	double fnbTotal;
 	TICKET temp;	// Temporary ticket structure to store updated details
 	Train tempTrain;	// Temporary train structure to store updated details
 	printf("============================================\n");
@@ -1321,6 +1322,19 @@ void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTr
 				scanf("%d", &temp.seatNo);
 			}
 			rewind(stdin);
+			do {
+				printf(" Add on some food or bevarage? (Y = Yes): ");
+				scanf("%c", &addOn);
+				rewind(stdin);
+				if (toupper(addOn) == 'Y') {
+					displayFnBMenu(fnb, numOfItem);
+					fnbTotal = fnbFunction(fnb, numOfItem);
+					temp.ticPrice += fnbTotal;
+					printf(" Add on some food or bevarage? (Y = Yes): ");
+					scanf("%c", &addOn);
+					rewind(stdin);
+				}
+			} while (toupper(addOn) == 'Y');
 
 			printf("Confirm to update? (Y = Yes): ");
 			scanf("%c", &confirmUpd);
@@ -1542,11 +1556,10 @@ void paymentFunction(TICKET ticket[], int* numOfTicket) {	// Function to handle 
 				default:
 					printf("Invalid choice! Please try again!\n");
 				}
-
 			}
-			if (!found)
-				printf("Booking ID Not found! Please try again.\n\n");
 		}
+		if (!found)
+			printf("Booking ID %s Not found! Please try again.\n\n", temp.ticketID);
 		printf("\nMake another Booking payment? (Y = Yes): ");
 		scanf("%c", &cont);
 		rewind(stdin);
