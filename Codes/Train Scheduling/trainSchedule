@@ -208,7 +208,11 @@ void modifyTrain() {
 				printf("Data updated successfully.\n");
 			}
 			else {
-				printf("Update canceled.\n");
+				system("cls");
+				printf("Update canceled.\n"); 
+				printf("\nPress any key to go back > ");
+				getch();
+				return;
 			}
 			found = 1;
 			break;
@@ -395,7 +399,7 @@ void searchTrain() {
 
 		printf("\nSearch another (Y = yes)? ");
 		rewind(stdin);
-		scanf(" %c", &cont); 
+		scanf(" %c", &cont);
 		system("cls");
 	} while (toupper(cont) == 'Y');
 
@@ -454,6 +458,7 @@ int main() {
 	//prompt user to choose a module
 	int choice;
 	do {
+		system("cls");
 		printf("\n TRAIN SCHEDULING\n\n");
 		printf(" 1. Add Train(s)\n");
 		printf(" 2. Modify Train(s)\n");
@@ -505,6 +510,5 @@ int main() {
 			printf("Invalid choice, please key in again.\n\n");
 		}
 	} while (choice != 7);
-	printf("END of processing...\n\n");
 	system("pause");
 };
