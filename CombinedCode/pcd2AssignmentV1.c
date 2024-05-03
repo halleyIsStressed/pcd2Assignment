@@ -1221,7 +1221,8 @@ void searchBooking(TICKET ticket[], int* numOfTicket) {	// Function to search fo
 void editBooking(TICKET ticket[], int* numOfTicket, Train trains[], int* numOfTrain, FNB fnb[], int* numOfItem) {	// Function to edit a booked ticket
 	system("cls");
 	int i, editIndex, found;
-	char editID[10], confirmUpd, cont;
+	char editID[10], confirmUpd, cont, addOn;
+	double fnbTotal;
 	TICKET temp;	// Temporary ticket structure to store updated details
 	Train tempTrain;	// Temporary train structure to store updated details
 	printf("============================================\n");
