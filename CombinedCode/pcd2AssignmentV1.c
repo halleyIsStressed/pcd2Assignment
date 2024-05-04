@@ -2658,7 +2658,7 @@ void searchTrain() {
 	do {
 		printf("Search A Train Record\n");
 		printf("=====================\n");
-		printf("Add a new train feedback & maintenance (Y = Yes) (N = No)? > ");
+		printf("Search a record (Y = Yes) (N = No)? > ");
 		rewind(stdin);
 		scanf("%c", &selection);
 
