@@ -402,7 +402,7 @@ bool staffLogin(Staff* place_to_put_staff) {
 		exit(1);
 	}
 
-	stringInput("Enter your staff ID > ", loginID, 10);
+	stringInput("Enter your staff ID > ", loginID, ID_SIZE);
 	stringInput("Enter your password > ", loginPassword, PASSWORD_SIZE);
 
 	while (fread(&staffBuffer, sizeof(Staff), 1, fStaff)) {					// Looping to read each structure variable saved into Staff.bin.
@@ -421,7 +421,6 @@ bool staffLogin(Staff* place_to_put_staff) {
 				printf(" Press any key to try again...\n");
 				getch();
 				system("cls");
-				title();
 				break;
 			}
 		}
@@ -456,7 +455,7 @@ void staffSignUp() {
 		title();
 		decorationFlower();
 		printf("");
-		printf("The ID must model start at 'S'(E.G.S00001)\n");
+		printf("The ID must model start at 'S'(E.G.S0001)\n");
 		stringInput("New login ID > ", staffInformation.staffID, ID_SIZE);
 		stringInput("New password > ", staffInformation.staffPassword, PASSWORD_SIZE);
 		printf("\n");
@@ -471,12 +470,6 @@ void staffSignUp() {
 		while (fread(&informationCheck, sizeof(Staff), 1, newInformationCheck) == 1) {
 			if (strcmp(informationCheck.staffID, staffInformation.staffID) == 0) {
 				printf("\nID Taken! Please use another...\n");
-				getch();
-				informationTaken = 1;
-				break;
-			}
-			if (strcmp(informationCheck.staffPassword, staffInformation.staffPassword) == 0) {
-				printf("\nPassword Taken! Please use another...\n");
 				getch();
 				informationTaken = 1;
 				break;
@@ -730,7 +723,7 @@ bool memberMenu(Member* current_member) {
 				However, reading block by block means that the pointer would be placed at the END of the structure we want to modify. Therefore, we want to move the pointer to the specific
 				datafield of the block we are looking to modify. For that, we use fseek, and to tell the command how far back we want to move our pointer, we use the variable 'offset'.
 
-				For example, we want to modify our password. IC is the first datafield of the struct, followed by username, then password. To move the pointer back to the very beginning of
+				For example, we want to modify our password. IC is the first datafield of the struct, followed by username, then password. To move the pointer back to the very beginning of 
 				the username field, we tell fseek how far back we want to go, which is calculated by the sum of the size of datafields before password, minus the total size of the struct.
 
 																			(IC_SIZE+USERNAME_SIZE) - sizeof(Member)
@@ -901,7 +894,7 @@ bool memberModify(Member* current_member, char* newData, int dataSize, int offse
 
 	...and by plugging it into fseek, we effectively moved to the front of the 'password' datafield, allowing us to simply fwrite the new data.
 	*/
-
+	
 	FILE* fMod = fopen("memberlist.bin", "rb+");
 	Member memberBuffer;
 
