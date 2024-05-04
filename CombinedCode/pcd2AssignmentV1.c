@@ -2294,7 +2294,7 @@ void addTrain(Train* train) {
 	printf("\n");
 	if (toupper(selection) == 'Y') {
 		do {
-			printf("Enter the Time following the format.\n");
+			printf("Enter the Time and Platform following the format.\n");
 			printf("(Hours:Minutes) (24H Format) (Platform 1-10)\n\n");
 			printf("Train ID               : ");
 			scanf("%d", &train->trainID);
