@@ -116,12 +116,12 @@ struct upload_status {
 #define DEBUG 0
 
 // Function Declarations: MEMBER MODULE (Implementation 100%)
-void userMain();
-bool login(Member* place_to_put_member);
+void memberMain();
+bool memberLogin(Member* place_to_put_member);
 bool memberMenu(Member*);
 bool memberModify(Member* current_member, char* newData, int dataSize, int offset);
 bool passwordRec(Member* place_to_put_member); 				// Password Recovery Function
-void signUp();
+void memberSignUp();
 bool is_valid_gender(char gender);
 int randomNumGen();
 int stringInput(const char* prompt, char* buffer, int n); 	// Used as a one-liner for prompting and receiving input for string
@@ -192,6 +192,7 @@ void line();
 // Main Menus
 void main() {
 	int option;
+	system("color F0");
 	do {
 		title();
 		printf("Are you a Staff or a Member?\n");
@@ -208,7 +209,7 @@ void main() {
 			break;
 		case 2:
 			system("cls");
-			userMain();
+			memberMain();
 			break;
 		case 3:
 			printf("\nSee you!\n");
@@ -262,7 +263,7 @@ void staffMain() {
 	}
 }
 
-void userMain() {										// Main Menu. Branches off into Login, Sign Up, Password Recovery, Close Program.
+void memberMain() {										// Main Menu. Branches off into Login, Sign Up, Password Recovery, Close Program.
 	bool exit = false;
 	Member current_member;
 	while (!exit) {
@@ -273,19 +274,19 @@ void userMain() {										// Main Menu. Branches off into Login, Sign Up, Passw
 		printf("Choose your Desired Mode.\n");
 		printf("1. Login\n");
 		printf("2. Sign Up\n");
-		printf("3. I forgor my password :skull:\n");
+		printf("3. Password Recovery\n");
 		printf("4. Exit\n\n");
 		printf(">>>>> ");
 		scanf("%d", &loginOption);
 		flush(stdin);
 		switch (loginOption) {
 		case 1:
-			if (login(&current_member) == true) {		// Login function. If login is a success (receives value 'true'), move to member menu.
+			if (memberLogin(&current_member) == true) {	// Login function. If login is a success (receives value 'true'), move to member menu.
 				memberMenu(&current_member);
 			}
 			break;
 		case 2:
-			signUp();
+			memberSignUp();
 			break;
 		case 3:
 			if (passwordRec(&current_member) == true) {	// Password Recovery function. If succeeded (receives value 'true'), move to member menu.
@@ -306,7 +307,7 @@ void userMain() {										// Main Menu. Branches off into Login, Sign Up, Passw
 
 
 // Pre-Login Functions
-bool login(Member* place_to_put_member) {
+bool memberLogin(Member* place_to_put_member) {
 	char loginName[USERNAME_SIZE], loginPassword[PASSWORD_SIZE];
 	FILE* fMem;
 	Member memberBuffer;			// Temporary spot to store the structer read from .bin file. Used to compare with user input.
@@ -348,7 +349,7 @@ bool login(Member* place_to_put_member) {
 	return false;
 }
 
-void signUp() {
+void memberSignUp() {
 	Member new_member, memberBuffer;
 	FILE* fMem;
 	bool usernameTaken;
@@ -1046,6 +1047,7 @@ void lnfDisplaySort(char* sorter) {
 	}
 	int count = 0;
 	LostItem itemBuffer;
+	system("cls");
 	printf("Lost Item List\n");
 	printf("===================\n\n");
 	printf("%-20s | %-10s | %-50s | %-30s \n", "Type", "Colour", "Lost on Station", "Reporter");
@@ -1658,8 +1660,9 @@ bool exitFunction(TICKET ticket[], int* numOfTicket) {	// Function to handle pro
 	}
 	for (int i = 0; i < *numOfTicket; i++) {	// Loop through ticket array and write ticket details to file
 		fprintf(ticketFile, "%s|%s|%02d/%02d/%04d|%02d:%02d|%02d/%02d/%04d|%s|%s|%s|%s|%c|%02d|%d|%.2lf|%s\n",
-			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min, ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year,
-			ticket[i].departStation, ticket[i].arrivStation, ticket[i].departTime, ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
+			ticket[i].ticketID, ticket[i].name, ticket[i].bookDate.day, ticket[i].bookDate.month, ticket[i].bookDate.year, ticket[i].time.hour, ticket[i].time.min, 
+			ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year, ticket[i].departStation, ticket[i].arrivStation, ticket[i].departTime, 
+			ticket[i].estimateTimeArrive, ticket[i].coach, ticket[i].seatNo, ticket[i].departPlatform, ticket[i].ticPrice, ticket[i].status);
 	}
 	fclose(ticketFile);	// Close the file
 	// Display exit message
@@ -1722,7 +1725,7 @@ void staffMenu(Staff* staffInformation) {
 				duty(*staffInformation);
 				break;
 			case 3:
-				signUp();
+				memberSignUp();
 				break;
 			case 4:
 				system("cls");
@@ -1762,7 +1765,7 @@ void staffMenu(Staff* staffInformation) {
 				duty(*staffInformation);
 				break;
 			case 3:
-				signUp();
+				memberSignUp();
 				break;
 			case 4:
 				system("cls");
