@@ -46,7 +46,7 @@ typedef struct {
 
 
 // Defining size for train structure
-#define TRAINS_SIZE 10
+#define TRAINS_SIZE 20
 #define STATION_SIZE 50
 #define TIME_SIZE 10
 #define STATUS_SIZE 20
