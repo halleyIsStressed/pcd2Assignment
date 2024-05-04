@@ -2679,10 +2679,9 @@ void searchTrain() {
 						trains[i].ticketPrice, trains[i].availableSeats, trains[i].trainStatus);
 				}
 			}
-			printf("\nSearch another (Y = yes)? ");
+			printf("\nSearch another (Y = Yes) (N = No) ? ");
 			rewind(stdin);
 			scanf(" %c", &cont);
-			system("cls");
 		}
 
 		else {
