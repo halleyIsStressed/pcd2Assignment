@@ -2295,7 +2295,7 @@ void addTrain(Train* train) {
 	if (toupper(selection) == 'Y') {
 		do {
 			printf("Enter the Time following the format.\n");
-			printf("(Hours:Minutes) (24H Format)\n\n");
+			printf("(Hours:Minutes) (24H Format) (Platform 1-10)\n\n");
 			printf("Train ID               : ");
 			scanf("%d", &train->trainID);
 			printf("Departure Station      : ");
@@ -2367,7 +2367,7 @@ void modifyTrain(Train* trains) {
 	//prompt user to choose train to modify 
 	printf("Modify A Train Record\n");
 	printf("=====================\n");
-	printf("Add a new train record (Y = Yes) (N = No)? > ");
+	printf("Modify a new train record (Y = Yes) (N = No)? > ");
 	rewind(stdin);
 	scanf("%c", &selection);
 
@@ -2397,10 +2397,12 @@ void modifyTrain(Train* trains) {
 					scanf("%[^\n]", newDptStation);
 					break;
 				case 2:
+					printf("\nPlatform 1-10");
 					printf("\nEnter the new departure platform: ");
 					scanf("%d", &newPlatform);
 					break;
 				case 3:
+					printf("\n(Hours:Minutes) (24H Format)");
 					printf("\nEnter the new departure time: ");
 					rewind(stdin);
 					scanf("%[^\n]", newTime);
@@ -2411,6 +2413,7 @@ void modifyTrain(Train* trains) {
 					scanf("%[^\n]", newArrStation);
 					break;
 				case 5:
+					printf("\n(Hours:Minutes) (24H Format)");
 					printf("\nEnter the new estimated arrival time: ");
 					rewind(stdin);
 					scanf("%[^\n]", newEta);
@@ -2556,6 +2559,7 @@ void addMainFeed(Train* trains) {
 			if (chosenTrain == trains[j].trainID) {
 				printf("\nAdd details for Train %d\n", trains[j].trainID);
 				printf("==============================\n");
+				printf("Enter No Feedback / No Maintenance if the record is suppose to be empty");
 				printf("Add Feedback: ");
 				rewind(stdin);
 				scanf("%[^\n]", mainfeed[j].feedback);
