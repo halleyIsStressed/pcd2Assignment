@@ -2273,7 +2273,6 @@ void scheduleMain() {
 			printf("Invalid choice, please key in again.\n\n");
 		}
 	} while (choice != 7);
-	system("pause");
 }
 
 void addTrain(Train* train) {
