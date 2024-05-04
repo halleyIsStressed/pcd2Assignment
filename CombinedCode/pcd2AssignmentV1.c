@@ -103,7 +103,7 @@ struct upload_status {
 
 // Password recovery function: Defining Format
 #define FROM_MAIL "lee.lapyhin0127@gmail.com"	// This is the email we will be using for the password recovery function.
-#define APP_PASSWORD "xqhp ccru spzc ttxo"		// This is the App Password for the email above. Will be empty in github and during code inspection.
+#define APP_PASSWORD ""		// This is the App Password for the email above. Will be empty in github and during code inspection.
 #define PAYLOAD_TEXT                                                 \
         "From: <" FROM_MAIL ">\r\n"                                  \
         "To: <%s>\r\n"                                               \
