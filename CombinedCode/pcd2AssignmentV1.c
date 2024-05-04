@@ -441,15 +441,51 @@ void staffSignUp() {
 		perror("Error opening file");
 		return;
 	}
+	FILE* newInformationCheck = fopen("Staff.bin", "rb");  // read to check the password is ok or not
+	if (newInformationCheck == NULL) {
+		perror("Error opening file");
+		return;
+	}
 	int position;
-	Staff staffInformation;
-	title();
-	decorationFlower();
-	printf("");
-	stringInput("New login ID > ", staffInformation.staffID, ID_SIZE);
-	stringInput("New password > ", staffInformation.staffPassword, PASSWORD_SIZE);
-	printf("\n");
-	decorationFlower();
+	Staff staffInformation, informationCheck;
+	int informationTaken = 0;
+	do
+	{
+		informationTaken = 0;
+		system("cls");
+		title();
+		decorationFlower();
+		printf("");
+		printf("The ID must model start at 'S'(E.G.S00001)\n");
+		stringInput("New login ID > ", staffInformation.staffID, ID_SIZE);
+		stringInput("New password > ", staffInformation.staffPassword, PASSWORD_SIZE);
+		printf("\n");
+		decorationFlower();
+		if (staffInformation.staffID[0] != 'S') {
+			printf("\nThe first letter of the ID must be 'S'.\n");
+			getch();
+			informationTaken = 1;
+			continue; // Skip the rest of the loop and start over
+		}
+		rewind(newInformationCheck); // Always rewind the file pointer before reading
+		while (fread(&informationCheck, sizeof(Staff), 1, newInformationCheck) == 1) {
+			if (strcmp(informationCheck.staffID, staffInformation.staffID) == 0) {
+				printf("\nID Taken! Please use another...\n");
+				getch();
+				informationTaken = 1;
+				break;
+			}
+			if (strcmp(informationCheck.staffPassword, staffInformation.staffPassword) == 0) {
+				printf("\nPassword Taken! Please use another...\n");
+				getch();
+				informationTaken = 1;
+				break;
+			}
+		}
+
+	} while (informationTaken == 1);
+	fclose(newInformationCheck);
+
 	stringInput("New username > ", staffInformation.information.name, USERNAME_SIZE);
 	stringInput("New email    > ", staffInformation.information.email, EMAIL_SIZE);
 	stringInput("New contact  > +60", staffInformation.information.phoneNumber, CONTACT_SIZE);
@@ -694,7 +730,7 @@ bool memberMenu(Member* current_member) {
 				However, reading block by block means that the pointer would be placed at the END of the structure we want to modify. Therefore, we want to move the pointer to the specific
 				datafield of the block we are looking to modify. For that, we use fseek, and to tell the command how far back we want to move our pointer, we use the variable 'offset'.
 
-				For example, we want to modify our password. IC is the first datafield of the struct, followed by username, then password. To move the pointer back to the very beginning of 
+				For example, we want to modify our password. IC is the first datafield of the struct, followed by username, then password. To move the pointer back to the very beginning of
 				the username field, we tell fseek how far back we want to go, which is calculated by the sum of the size of datafields before password, minus the total size of the struct.
 
 																			(IC_SIZE+USERNAME_SIZE) - sizeof(Member)
@@ -865,7 +901,7 @@ bool memberModify(Member* current_member, char* newData, int dataSize, int offse
 
 	...and by plugging it into fseek, we effectively moved to the front of the 'password' datafield, allowing us to simply fwrite the new data.
 	*/
-	
+
 	FILE* fMod = fopen("memberlist.bin", "rb+");
 	Member memberBuffer;
 
