@@ -1740,6 +1740,7 @@ void staffMenu(Staff* staffInformation) {
 				searchStaff();
 				break;
 			case 7:
+				system("cls");
 				returnToMain = applyResign();
 				break;
 			case 8:
@@ -2044,7 +2045,7 @@ void duty(Staff dutyShow) {
 bool applyResign() {
 	Staff applyResign[MAX_STAFF_INFORMATION];
 	int i, pEntries;
-	char selectCom[6], choice, passwordCheck[20], reason[200];
+	char selectCom[6], choice, idCheck[20], reason[200];
 	FILE* sthA = fopen("Staff.bin", "rb");
 	if (sthA == NULL) {
 		perror("Error opening file");
@@ -2062,12 +2063,12 @@ bool applyResign() {
 	clearInputBuffer();
 
 	if (toupper(selectCom[0]) == 'Y') {
-		printf("Please enter your Password.\n>>>>> ");
-		scanf("%s", passwordCheck);
+		printf("Please enter your ID.\n>>>>> ");
+		scanf("%s", idCheck);
 		clearInputBuffer();
 
 		for (i = 0; i < pEntries; i++) {
-			if (strcmp(applyResign[i].staffPassword, passwordCheck) == 0) {
+			if (strcmp(applyResign[i].staffID, idCheck) == 0) {
 				printf("Your reason for resignation: ");
 				scanf("%[^\n]", reason);
 				clearInputBuffer();
@@ -2093,12 +2094,15 @@ bool applyResign() {
 					printf("Completed.\n");
 					getch();
 					fclose(sthW);
+					system("cls");
 					return true;
 				}
 			}
 		}
 		if (i == pEntries) {
 			printf("Password not matched any records or cancellation not confirmed.\n");
+			getch();
+			system("cls");
 		}
 	}
 	else if (toupper(selectCom[0]) == 'N') {
