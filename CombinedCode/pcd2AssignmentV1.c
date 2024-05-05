@@ -1512,13 +1512,13 @@ void deleteBooking(TICKET ticket[], int* numOfTicket) {	// Function to delete a 
 				printf("\n\tDeparture Date:      %02d/%02d/%04d", ticket[i].departDate.day, ticket[i].departDate.month, ticket[i].departDate.year);
 				printf("\n\tDeparture Station:   %s", ticket[i].departStation);
 				printf("\n\tArrival Station:     %s", ticket[i].arrivStation);
-				printf("\n\tDeparture Time : % s", ticket[i].departTime);
-				printf("\n\tETA: \t\t% s", ticket[i].estimateTimeArrive);
+				printf("\n\tDeparture Time :     %s", ticket[i].departTime);
+				printf("\n\tETA: \t\     %s", ticket[i].estimateTimeArrive);
 				printf("\n\tCoach: \t\t     %c", ticket[i].coach);
 				printf("\n\tSeat No: \t     %d", ticket[i].seatNo);
-				printf("\n\tDeparture Platform : % d", ticket[i].departPlatform);
-				printf("\n\tTicket Price(RM) : % .2lf", ticket[i].ticPrice);
-				printf("\n\tBooking Status : % s", ticket[i].status);
+				printf("\n\tDeparture Platform : %d", ticket[i].departPlatform);
+				printf("\n\tTicket Price(RM) :   %.2lf", ticket[i].ticPrice);
+				printf("\n\tBooking Status :     %s", ticket[i].status);
 				printf("\n\nConfirm deletion of this ticket? (Y = Yes): ");
 				scanf("%c", &confirmDlt);
 				rewind(stdin);
