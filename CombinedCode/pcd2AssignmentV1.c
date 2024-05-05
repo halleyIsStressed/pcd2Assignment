@@ -1829,10 +1829,10 @@ bool staffModify() {
 				found = 1;
 				do
 				{
-					printf("1. Name : %s\n", modify[i].information.name);
-					printf("2. Address: %s\n", modify[i].information.address);
+					printf("1. Name \t: %s\n", modify[i].information.name);
+					printf("2. Address\t: %s\n", modify[i].information.address);
 					printf("3. Phone Number : +60%s\n", modify[i].information.phoneNumber);
-					printf("4. Email : %s\n", modify[i].information.email);
+					printf("4. Email \t: %s\n", modify[i].information.email);
 					printf("\nPlease select the data you want to modify. To return to Menu, enter 5. \n>> ");
 					scanf("%d", &selectModify);
 					system("cls");
@@ -1923,6 +1923,7 @@ bool staffModify() {
 			printf("\n\nChanges are pending.\nAny more record to modify? (Y=yes)");
 			rewind(stdin);
 			scanf("%c", &add);
+			
 			if (toupper(add) != 'Y') {
 				FILE* modifyW = fopen("Staff.bin", "wb");
 				for (i = 0; i < modifySave; i++)
@@ -1935,6 +1936,9 @@ bool staffModify() {
 				getch();
 				system("cls");
 				return true;
+			}
+			else {
+				system("cls");
 			}
 		}
 	} while (toupper(add) == 'Y');
@@ -2108,7 +2112,7 @@ bool applyResign() {
 	else if (toupper(selectCom[0]) == 'N') {
 		printf("Cancellation not confirmed.\n");
 		getch();
-                system("cls");
+		system("cls");
 	}
 	else {
 		printf("Invalid command entered.\n");
