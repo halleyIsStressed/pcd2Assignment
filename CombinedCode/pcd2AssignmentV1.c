@@ -2100,7 +2100,7 @@ bool applyResign() {
 			}
 		}
 		if (i == pEntries) {
-			printf("Password not matched any records or cancellation not confirmed.\n");
+			printf("ID not matched any records or cancellation not confirmed.\n");
 			getch();
 			system("cls");
 		}
