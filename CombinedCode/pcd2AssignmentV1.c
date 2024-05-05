@@ -1725,6 +1725,7 @@ void staffMenu(Staff* staffInformation) {
 				duty(*staffInformation);
 				break;
 			case 3:
+				rewind(stdin);
 				memberSignUp();
 				break;
 			case 4:
@@ -1765,6 +1766,7 @@ void staffMenu(Staff* staffInformation) {
 				duty(*staffInformation);
 				break;
 			case 3:
+				rewind(stdin);
 				memberSignUp();
 				break;
 			case 4:
@@ -1799,7 +1801,7 @@ bool staffModify() {
 	system("cls");
 	Staff modify[10];
 	int modifySave = 0, found = 0, selectModify = 0;
-	char i = 0, staffPassword[PASSWORD_SIZE], newName[USERNAME_SIZE], addressNew[ADDR_SIZE], phoneNumberNew[CONTACT_SIZE], emailNew[EMAIL_SIZE], position[20], confirm;
+	char i = 0, staffID[PASSWORD_SIZE], newName[USERNAME_SIZE], addressNew[ADDR_SIZE], phoneNumberNew[CONTACT_SIZE], emailNew[EMAIL_SIZE], position[20], confirm;
 	char add;
 	FILE* modifyR = fopen("Staff.bin", "rb");
 	if (modifyR == NULL) {
@@ -1815,13 +1817,13 @@ bool staffModify() {
 
 	do {
 		if (found == 0) {
-			printf("Enter your Password :");
+			printf("Enter your ID :");
 			rewind(stdin);
-			scanf("%s", &staffPassword);
+			scanf("%s", &staffID);
 		}
 		found = 0;
 		for (i = 0; i < modifySave; i++) {
-			if (strcmp(staffPassword, modify[i].staffPassword) == 0)
+			if (strcmp(staffID, modify[i].staffID) == 0)
 			{
 				found = 1;
 				do
@@ -1908,7 +1910,7 @@ bool staffModify() {
 		}
 		if (!found)
 		{
-			printf("Password Mismatch!\n");
+			printf("ID Mismatch!\n");
 			printf("Would you like to try again? (Y = yes)");
 			rewind(stdin);
 			scanf("%c", &add);
