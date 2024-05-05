@@ -2107,6 +2107,8 @@ bool applyResign() {
 	}
 	else if (toupper(selectCom[0]) == 'N') {
 		printf("Cancellation not confirmed.\n");
+		getch();
+                system("cls");
 	}
 	else {
 		printf("Invalid command entered.\n");
